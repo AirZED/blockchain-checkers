@@ -1,13 +1,14 @@
 import { ReactElement, Fragment, useState, useEffect } from "react";
 
 import { PlayerModel } from "../Player/Player";
-import { Labels } from "../../utils/contants";
+import { Labels, Letters } from "../../utils/contants";
 import { Cell, CellModel } from "../Cell/Cell";
 import { FigureModel } from "../Cell/Figure";
 
 export class BoardModel {
   cells: CellModel[][] = [];
   cellsInRow = 8;
+  cellsInColumn = 8;
 
   getCell(x: number, y: number): CellModel {
     return this.cells[y][x];
@@ -47,16 +48,19 @@ export class BoardModel {
   }
 
   createCells() {
-    for (let i = 0; i < this.cellsInRow; i += 1) {
+    for (let y = 1; y <= this.cellsInColumn; y += 1) {
       const row: CellModel[] = [];
 
-      for (let j = 0; j < this.cellsInRow; j += 1) {
-        if ((i + j) % 2 !== 0) {
-          row.push(new CellModel(j, i, Labels.Dark, this)); // dark
+      for (let x = 1; x <= this.cellsInRow; x += 1) {
+        if ((x + y) % 2 === 0) {
+          console.log(new CellModel(x, y, Labels.Dark, `${Letters[y]}${x}`));
+          row.push(new CellModel(x, y, Labels.Dark, `${Letters[y]}${x}`)); // dark
         } else {
-          row.push(new CellModel(j, i, Labels.Light, this)); // light
+          console.log(new CellModel(x, y, Labels.Light, `${Letters[y]}${x}`));
+          row.push(new CellModel(x, y, Labels.Light, `${Letters[y]}${x}`)); // light
         }
       }
+
       this.cells.push(row);
     }
   }
@@ -78,6 +82,7 @@ export const Board = ({
   const [selected, setSelected] = useState<CellModel | null>(null);
 
   const handleCellClick = (cell: CellModel) => {
+    console.log(cell);
     if (selected && selected !== cell && selected.figure?.canMove(cell)) {
       selected.moveFigure(cell);
       setSelected(null);
@@ -107,18 +112,20 @@ export const Board = ({
 
   return (
     <div className="flex flex-wrap w-[calc(64px*8)] h-[calc(64px*8)] relative">
-      {board.cells.map((row, rowIndex) => (
-        <Fragment key={rowIndex}>
-          {row.map((cell, cellIndex) => (
-            <Cell
-              cell={cell}
-              key={cell.key}
-              rowIndex={rowIndex}
-              cellIndex={cellIndex}
-              selected={selected?.x === cell.x && selected.y === cell.y} // check if selected cell coords equal to rendered cell
-              onCellClick={handleCellClick}
-            />
-          ))}
+      {board.cells.map((row, index) => (
+        <Fragment key={index}>
+          {row.map((cell) => {
+            return (
+              <Cell
+                cell={cell}
+                key={cell.key}
+                rowIndex={cell.y}
+                colomnIndex={cell.x}
+                selected={selected?.x === cell.x && selected.y === cell.y} // check if selected cell coords equal to rendered cell
+                onCellClick={handleCellClick}
+              />
+            );
+          })}
         </Fragment>
       ))}
     </div>

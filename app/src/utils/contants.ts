@@ -4,6 +4,7 @@ export enum Labels {
 }
 
 export enum Letters {
+  Z,
   A,
   B,
   C,

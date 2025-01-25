@@ -1,5 +1,4 @@
 import { Labels, Letters } from "../../utils/contants";
-import { BoardModel } from "../Board/Board";
 
 import { ReactElement, Fragment } from "react";
 import { FigureModel } from "./Figure";
@@ -9,18 +8,19 @@ export class CellModel {
   readonly y: number;
   readonly label: Labels;
   figure: FigureModel | null; // our figure
-  board: BoardModel;
+
   available: boolean;
   key: string;
+  id: string;
 
-  constructor(x: number, y: number, label: Labels, board: BoardModel) {
+  constructor(x: number, y: number, label: Labels, id: string) {
     this.x = x; // x coord
     this.y = y; // y coord
     this.label = label;
-    this.board = board;
     this.available = false; // is it free for figure
     this.key = `${String(x)}${String(y)}`;
     this.figure = null; // null by default
+    this.id = id;
   }
 
   isForwardCell(targetCell: CellModel, selectedFigure: FigureModel): boolean {
@@ -44,7 +44,7 @@ export class CellModel {
 
 type CellProps = {
   cell: CellModel;
-  cellIndex: number;
+  colomnIndex: number;
   rowIndex: number;
   selected: boolean;
   onCellClick: (cell: CellModel) => void;
@@ -53,7 +53,7 @@ type CellProps = {
 export const Cell = ({
   cell,
   rowIndex,
-  cellIndex,
+  colomnIndex,
   selected,
   onCellClick,
 }: CellProps): ReactElement => {
@@ -69,23 +69,23 @@ export const Cell = ({
         } h-16 w-16 flex items-center justify-center cursor-pointer`}
         onClick={() => onCellClick(cell)}
       >
-        {(rowIndex === 0 || rowIndex === 7) && (
+        {(rowIndex === 1 || rowIndex === 8) && (
           <div
             className={`${
-              rowIndex === 0 ? "translate-y-[-50px]" : "translate-y-[50px]"
+              rowIndex === 1 ? "translate-y-[-50px]" : "translate-y-[50px]"
             } absolute`}
           >
-            {Letters[cellIndex]}
+            {Letters[colomnIndex]}
           </div>
         )}
 
-        {(cellIndex === 0 || cellIndex === 7) && (
+        {(colomnIndex === 1 || colomnIndex === 8) && (
           <div
             className={`${
-              cellIndex === 0 ? "translate-x-[-50px]" : "translate-x-[50px]"
+              colomnIndex === 1 ? "translate-x-[-50px]" : "translate-x-[50px]"
             } absolute`}
           >
-            {8 - rowIndex}
+            {9 - rowIndex}
           </div>
         )}
 
