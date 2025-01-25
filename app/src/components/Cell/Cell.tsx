@@ -1,4 +1,4 @@
-import { FigureNames, Labels, Letters } from "../../utils/contants";
+import { Labels, Letters } from "../../utils/contants";
 import { BoardModel } from "../Board/Board";
 
 import { ReactElement, Fragment } from "react";
