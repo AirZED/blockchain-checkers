@@ -48,15 +48,13 @@ export class BoardModel {
   }
 
   createCells() {
-    for (let y = 1; y <= this.cellsInColumn; y += 1) {
+    for (let x = 1; x <= this.cellsInColumn; x += 1) {
       const row: CellModel[] = [];
 
-      for (let x = 1; x <= this.cellsInRow; x += 1) {
+      for (let y = 1; y <= this.cellsInRow; y += 1) {
         if ((x + y) % 2 === 0) {
-          console.log(new CellModel(x, y, Labels.Dark, `${Letters[y]}${x}`));
           row.push(new CellModel(x, y, Labels.Dark, `${Letters[y]}${x}`)); // dark
         } else {
-          console.log(new CellModel(x, y, Labels.Light, `${Letters[y]}${x}`));
           row.push(new CellModel(x, y, Labels.Light, `${Letters[y]}${x}`)); // light
         }
       }

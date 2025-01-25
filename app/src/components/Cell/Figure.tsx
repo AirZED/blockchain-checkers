@@ -20,7 +20,6 @@ export class FigureModel {
   }
 
   canMove(targetCell: CellModel): boolean {
-    console.log(this.cell.isForwardCell(targetCell, this));
     return this.cell.isForwardCell(targetCell, this);
   }
 }
