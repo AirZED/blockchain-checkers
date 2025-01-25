@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Board, BoardModel, Labels } from "./components/Board/Board";
+import { Board, BoardModel } from "./components/Board/Board";
 import { PlayerModel } from "./components/Player/Player";
+import { Labels } from "./utils/contants";
 
 function App() {
   const [board, setBoard] = useState<BoardModel>(new BoardModel());

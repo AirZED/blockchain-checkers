@@ -1,4 +1,4 @@
-import { Labels } from "../Board/Board";
+import { Labels } from "../../utils/contants";
 
 export class PlayerModel {
   label: Labels;
