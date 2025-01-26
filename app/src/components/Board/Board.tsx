@@ -25,6 +25,13 @@ export class BoardModel {
   }
 
   highlightCells(selectedCell: CellModel) {
+    if (selectedCell) {
+      console.log("selectedCell", selectedCell);
+
+      const legalMoves = selectedCell.getMoveTarget(selectedCell);
+
+      console.log("legalMoves", legalMoves);
+    }
     this.cells.forEach((row) => {
       row.forEach((cell) => {
         cell.available = !!selectedCell?.figure?.canMove(cell);
@@ -53,9 +60,9 @@ export class BoardModel {
 
       for (let y = 1; y <= this.cellsInRow; y += 1) {
         if ((x + y) % 2 === 0) {
-          row.push(new CellModel(x, y, Labels.Dark, `${Letters[y]}${x}`)); // dark
+          row.push(new CellModel(x, y, Labels.Dark, `${Letters[x]}${y}`)); // dark
         } else {
-          row.push(new CellModel(x, y, Labels.Light, `${Letters[y]}${x}`)); // light
+          row.push(new CellModel(x, y, Labels.Light, `${Letters[x]}${y}`)); // light
         }
       }
 
@@ -80,7 +87,7 @@ export const Board = ({
   const [selected, setSelected] = useState<CellModel | null>(null);
 
   const handleCellClick = (cell: CellModel) => {
-    console.log(cell);
+    console.log("Clicked Cell", cell);
     if (selected && selected !== cell && selected.figure?.canMove(cell)) {
       selected.moveFigure(cell);
       setSelected(null);
@@ -117,8 +124,8 @@ export const Board = ({
               <Cell
                 cell={cell}
                 key={cell.key}
-                rowIndex={cell.y}
-                colomnIndex={cell.x}
+                rowIndex={cell.x}
+                colomnIndex={cell.y}
                 selected={selected?.x === cell.x && selected.y === cell.y} // check if selected cell coords equal to rendered cell
                 onCellClick={handleCellClick}
               />

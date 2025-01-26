@@ -14,11 +14,11 @@ export class CellModel {
   id: string;
 
   constructor(x: number, y: number, label: Labels, id: string) {
-    this.x = x; // x coord
-    this.y = y; // y coord
+    this.x = y; // x coord
+    this.y = x; // y coord
     this.label = label;
     this.available = false; // is it free for figure
-    this.key = `${String(x)}${String(y)}`;
+    this.key = `x=${y} y=${x}`;
     this.figure = null; // null by default
     this.id = id;
   }
@@ -32,6 +32,45 @@ export class CellModel {
     return label === Labels.Light
       ? dx === 1 && dy === 1
       : dx === 1 && dy === -1;
+  }
+
+  isOnBoard(): boolean {
+    return this.x >= 1 && this.x <= 8 && this.y >= 1 && this.y <= 8;
+  }
+
+  getMoveTarget(selectedCell: CellModel) {
+    const { x, y } = selectedCell;
+
+    let moves = [];
+
+    if (y >= 2) {
+      x >= 2 && moves.push({ x: x - 1, y: y - 1 });
+      x <= 7 && moves.push({ x: x + 1, y: y - 1 });
+    }
+
+    if (y <= 7) {
+      x >= 2 && moves.push({ x: x - 1, y: y + 1 });
+      x <= 7 && moves.push({ x: x + 1, y: y + 1 });
+    }
+
+    return moves;
+  }
+
+  getJumpsTarget(selectedCell: CellModel) {
+    const { x, y } = selectedCell;
+    let jumps = [];
+
+    if (y >= 3) {
+      x >= 3 && jumps.push({ x: x - 2, y: y - 2 });
+      x <= 6 && jumps.push({ x: x + 2, y: y - 2 });
+    }
+
+    if (y <= 6) {
+      x >= 3 && jumps.push({ x: x - 2, y: y + 2 });
+      x <= 6 && jumps.push({ x: x + 2, y: y + 2 });
+    }
+
+    return jumps;
   }
 
   moveFigure(targetCell: CellModel) {
@@ -72,20 +111,21 @@ export const Cell = ({
         {(rowIndex === 1 || rowIndex === 8) && (
           <div
             className={`${
-              rowIndex === 1 ? "translate-y-[-50px]" : "translate-y-[50px]"
+              rowIndex === 1 ? "translate-x-[-50px]" : "translate-x-[50px]"
             } absolute`}
           >
             {Letters[colomnIndex]}
+            {colomnIndex}
           </div>
         )}
 
         {(colomnIndex === 1 || colomnIndex === 8) && (
           <div
             className={`${
-              colomnIndex === 1 ? "translate-x-[-50px]" : "translate-x-[50px]"
+              colomnIndex === 1 ? "translate-y-[-50px]" : "translate-y-[50px]"
             } absolute`}
           >
-            {9 - rowIndex}
+            {rowIndex}
           </div>
         )}
 
