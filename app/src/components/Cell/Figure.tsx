@@ -22,4 +22,36 @@ export class FigureModel {
   canMove(targetCell: CellModel): boolean {
     return this.cell.isForwardCell(targetCell, this);
   }
+
+  validMove(from: CellModel, to: CellModel): boolean {
+    if (!to.isOnBoard() || !from.isOnBoard()) {
+      return false;
+    }
+
+    const { y: ty } = to;
+    const { y: fy } = from;
+
+    // if (this.cell.board[tx][ty]) {
+    //     return false;
+    // }
+
+    let valid = false;
+    if (
+      ty > fy &&
+      this.cell.figure?.label === Labels.Light &&
+      !this.cell.figure?.isCrowned
+    ) {
+      valid = true;
+    }
+
+    if (
+      ty < fy &&
+      this.cell.figure?.label === Labels.Dark &&
+      !this.cell.figure?.isCrowned
+    ) {
+      valid = true;
+    }
+
+    return valid;
+  }
 }

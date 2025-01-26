@@ -24,14 +24,10 @@ export class CellModel {
   }
 
   isForwardCell(targetCell: CellModel, selectedFigure: FigureModel): boolean {
-    const { cell, label } = selectedFigure;
-
-    const dx = Math.abs(cell.x - targetCell.x);
-    const dy = cell.y - targetCell.y;
-
-    return label === Labels.Light
-      ? dx === 1 && dy === 1
-      : dx === 1 && dy === -1;
+    const possibleMoves = this.getMoveTarget(this);
+    return possibleMoves.some(
+      (move) => move.x === targetCell.x && move.y === targetCell.y
+    );
   }
 
   isOnBoard(): boolean {
@@ -114,7 +110,7 @@ export const Cell = ({
               rowIndex === 1 ? "translate-x-[-50px]" : "translate-x-[50px]"
             } absolute`}
           >
-            {Letters[colomnIndex]}
+            {/* {Letters[colomnIndex]} */}
             {colomnIndex}
           </div>
         )}
@@ -129,9 +125,11 @@ export const Cell = ({
           </div>
         )}
 
-        {cell.available && !cell.figure && (
-          <div className="bg-white w-2.5 h-2.5 rounded-full" />
-        )}
+        {cell.available ||
+          (cell.figure?.label === Labels.Dark && cell.x % 2 === 0) ||
+          (cell.figure?.label === Labels.Light && cell.x % 2 === 1 && (
+            <div className="bg-white w-2.5 h-2.5 rounded-full" />
+          ))}
 
         {figure?.imageSrc && (
           <img

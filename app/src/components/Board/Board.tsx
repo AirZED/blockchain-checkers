@@ -14,6 +14,10 @@ export class BoardModel {
     return this.cells[y][x];
   }
 
+  getMoveToCell(x: number, y: number) {
+    return this.cells[y - 1][x - 1];
+  }
+
   addFigure(label: Labels, x: number, y: number) {
     new FigureModel(label, this.getCell(x, y));
   }
@@ -26,22 +30,24 @@ export class BoardModel {
 
   highlightCells(selectedCell: CellModel) {
     if (selectedCell) {
-      console.log("selectedCell", selectedCell);
-
       const legalMoves = selectedCell.getMoveTarget(selectedCell);
 
-      console.log("legalMoves", legalMoves);
-    }
-    this.cells.forEach((row) => {
-      row.forEach((cell) => {
+      legalMoves.forEach((move) => {
+        const cell = this.getMoveToCell(move.x, move.y);
         cell.available = !!selectedCell?.figure?.canMove(cell);
       });
-    });
+    }
+    // this.cells.forEach((row) => {
+    //   row.forEach((cell) => {
+    //     cell.available = !!selectedCell?.figure?.canMove(cell);
+    //   });
+    // });
   }
 
   addFigures() {
     this.cells.forEach((row, rowIndex) => {
       row.forEach((cell, cellIndex) => {
+        console.log(cell);
         if (rowIndex <= 2 && cell.label === Labels.Dark) {
           new FigureModel(Labels.Dark, this.getCell(cellIndex, rowIndex)); // add dark pieces to first 3 rows
         } else if (
@@ -101,19 +107,19 @@ export const Board = ({
     }
   };
 
-  const highlightCells = () => {
-    board.highlightCells(selected as CellModel);
-    updateBoard();
-  };
+  // const highlightCells = () => {
+  //   board.highlightCells(selected as CellModel);
+  //   updateBoard();
+  // };
 
   const updateBoard = () => {
     const updatedBoard = board.getNewBoard();
     onSetBoard(updatedBoard);
   };
 
-  useEffect(() => {
-    highlightCells();
-  }, [selected]);
+  // useEffect(() => {
+  //   highlightCells();
+  // }, [selected]);
 
   return (
     <div className="flex flex-wrap w-[calc(64px*8)] h-[calc(64px*8)] relative">
