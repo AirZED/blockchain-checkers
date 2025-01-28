@@ -83,8 +83,8 @@ const GameEngine: React.FC = () => {
     // Check if destination is empty
     if (getPiece(to)) return false;
 
-    const { x: fx, y: fy } = from;
-    const { x: tx, y: ty } = to;
+    const { y: fy } = from;
+    const { y: ty } = to;
 
     let valid = false;
 
@@ -201,28 +201,26 @@ const GameEngine: React.FC = () => {
     }
   };
 
-const initializePieces = () => {
+  const initializePieces = () => {
     const newBoard = Array(8)
-        .fill(null)
-        .map(() => Array(8).fill(null));
+      .fill(null)
+      .map(() => Array(8).fill(null));
 
-    [1, 3, 5, 7, 0, 2, 4, 6, 1, 3, 5, 7]
-        .forEach((x, index) => {
-            const y = Math.floor(index / 4);
-            newBoard[x][y] = { color: PieceColor.WHITE, crowned: false };
-        });
+    [1, 3, 5, 7, 0, 2, 4, 6, 1, 3, 5, 7].forEach((x, index) => {
+      const y = Math.floor(index / 4);
+      newBoard[x][y] = { color: PieceColor.WHITE, crowned: false };
+    });
 
-    [0, 2, 4, 6, 1, 3, 5, 7, 0, 2, 4, 6]
-        .forEach((x, index) => {
-            const y = 5 + Math.floor(index / 4);
-            newBoard[x][y] = { color: PieceColor.BLACK, crowned: false };
-        });
+    [0, 2, 4, 6, 1, 3, 5, 7, 0, 2, 4, 6].forEach((x, index) => {
+      const y = 5 + Math.floor(index / 4);
+      newBoard[x][y] = { color: PieceColor.BLACK, crowned: false };
+    });
 
     setState((prevState) => ({
-        ...prevState,
-        board: newBoard,
+      ...prevState,
+      board: newBoard,
     }));
-};
+  };
 
   return (
     <div className="flex flex-row">

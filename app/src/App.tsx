@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Board, BoardModel } from "./components/Board/Board";
 import { PlayerModel } from "./components/Player/Player";
 import { Labels } from "./utils/contants";
 import GameEngine from "./components/Engine/GameEngine";
@@ -30,13 +29,6 @@ function App() {
   return (
     <div className="app w-screen h-screen flex justify-center items-center flex-col gap-24">
       {/* <div className="player">Current Player: {currentPlayer.label}</div> */}
-
-      {/* <Board
-        board={board}
-        onSetBoard={setBoard}
-        onChangePlayer={changePlayer}
-        currentPlayer={currentPlayer}
-      /> */}
 
       <GameEngine />
     </div>
