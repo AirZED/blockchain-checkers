@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { PlayerModel } from "./components/Player/Player";
-import { Labels } from "./utils/contants";
 import GameEngine from "./components/Engine/GameEngine";
 
 function App() {

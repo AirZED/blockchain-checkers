@@ -1,40 +1,24 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, ReactElement } from "react";
 import pieceImgLight from "../../assets/white.png";
 import pieceImgDark from "../../assets/black.png";
 import Coordinate from "./Coordinate";
+import { PlayerModel } from "../Player/Player";
+import {
+  GameEngineState,
+  GamePiece,
+  Move,
+  PieceColor,
+} from "../../utils/contants";
 
-enum PieceColor {
-  BLACK = "BLACK",
-  WHITE = "WHITE",
-}
+const GameEngine = (): ReactElement => {
+  const lightPlayer = new PlayerModel(PieceColor.WHITE);
+  const darkPlayer = new PlayerModel(PieceColor.BLACK);
 
-type Move = {
-  from: Coordinate;
-  to: Coordinate;
-};
-
-type MoveResult = {
-  move: Move;
-  crowned: boolean;
-};
-
-export interface GamePiece {
-  color: PieceColor;
-  crowned: boolean;
-}
-
-interface GameEngineState {
-  board: (GamePiece | null)[][];
-  currentTurn: PieceColor;
-  moveCount: number;
-}
-
-const GameEngine: React.FC = () => {
   const [state, setState] = useState<GameEngineState>({
     board: Array(8)
       .fill(null)
       .map(() => Array(8).fill(null)),
-    currentTurn: PieceColor.BLACK,
+    currentTurn: lightPlayer,
     moveCount: 0,
   });
 
@@ -171,9 +155,7 @@ const GameEngine: React.FC = () => {
       ...prev,
       board: newBoard,
       currentTurn:
-        prev.currentTurn === PieceColor.BLACK
-          ? PieceColor.WHITE
-          : PieceColor.BLACK,
+        prev.currentTurn.label === PieceColor.WHITE ? darkPlayer : lightPlayer,
       moveCount: prev.moveCount + 1,
     }));
   };
@@ -190,7 +172,7 @@ const GameEngine: React.FC = () => {
     const clickedCoord = new Coordinate(x, y);
     const piece = getPiece(clickedCoord);
 
-    if (piece && piece.color === state.currentTurn) {
+    if (piece && piece.color === state.currentTurn.label) {
       setSelectedPiece(clickedCoord);
     } else if (selectedPiece && isValidMove(selectedPiece, clickedCoord)) {
       // Handle move logic here

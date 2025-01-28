@@ -1,9 +1,9 @@
-import { Labels } from "../../utils/contants";
+import { PieceColor } from "../../utils/contants";
 
 export class PlayerModel {
-  label: Labels;
+  label: PieceColor;
 
-  constructor(label: Labels) {
+  constructor(label: PieceColor) {
     this.label = label;
   }
 }

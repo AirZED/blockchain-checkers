@@ -1,5 +1,6 @@
+import { GamePiece } from "../../utils/contants";
 import Coordinate from "./Coordinate";
-import { GamePiece } from "./GameEngine";
+
 
 export class Cell {
   constructor(
