@@ -1,6 +1,8 @@
 import { useState, useEffect, ReactElement } from "react";
 import pieceImgLight from "../../assets/white.png";
 import pieceImgDark from "../../assets/black.png";
+import kingPieceImgLight from "../../assets/whiteKing.png";
+import kingPieceImgDark from "../../assets/blackKing.png";
 import Coordinate from "./Coordinate";
 import { PlayerModel } from "../Player/Player";
 import {
@@ -209,39 +211,45 @@ const GameEngine = (): ReactElement => {
       <div className="flex ">
         {state.board.map((row, rowIndex) => (
           <div key={rowIndex} className="flex flex-col">
-            {row.map((cell, columnIndex) => (
-              <div
-                onClick={() => handlePieceClick(rowIndex, columnIndex)}
-                key={columnIndex}
-                className={`w-16 h-16 flex items-center justify-center cursor-pointer
+            {row.map((cell, columnIndex) => {
+              return (
+                <div
+                  onClick={() => handlePieceClick(rowIndex, columnIndex)}
+                  key={columnIndex}
+                  className={`w-16 h-16 flex items-center justify-center cursor-pointer
                 ${
                   (rowIndex + columnIndex) % 2 === 0
                     ? "bg-[#EDCC8F]"
                     : "bg-[#855E44]"
                 }
                     `}
-              >
-                {cell && (
-                  <img
-                    src={
-                      cell.color === PieceColor.BLACK
-                        ? pieceImgDark
-                        : pieceImgLight
-                    }
-                    alt={
-                      cell.color === PieceColor.BLACK
-                        ? "Black Piece"
-                        : "White Piece"
-                    }
-                    className={`w-12 rounded-full   ${
-                      isCellSelected(rowIndex, columnIndex)
-                        ? "animate-scaling"
-                        : ""
-                    }`}
-                  />
-                )}
-              </div>
-            ))}
+                >
+                  {cell && (
+                    <img
+                      src={
+                        cell.crowned
+                          ? cell.color === PieceColor.BLACK
+                            ? kingPieceImgDark
+                            : kingPieceImgLight
+                          : cell.color === PieceColor.BLACK
+                          ? pieceImgDark
+                          : pieceImgLight
+                      }
+                      alt={
+                        cell.color === PieceColor.BLACK
+                          ? "Black Piece"
+                          : "White Piece"
+                      }
+                      className={`w-12 rounded-full   ${
+                        isCellSelected(rowIndex, columnIndex)
+                          ? "animate-scaling"
+                          : ""
+                      }`}
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
         ))}
       </div>
