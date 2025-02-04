@@ -207,7 +207,8 @@ const GameEngine = (): ReactElement => {
   };
 
   return (
-    <div className="flex flex-row">
+    <div className="flex flex-col gap-2">
+      <p className="text-[1.5rem] font-[800]"> Current Turn: {state.currentTurn.label}</p>
       <div className="flex ">
         {state.board.map((row, rowIndex) => (
           <div key={rowIndex} className="flex flex-col">
