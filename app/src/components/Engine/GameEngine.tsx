@@ -312,8 +312,10 @@ const GameEngine = (): ReactElement => {
       ) : (
         <div className="flex flex-col gap-2">
           <p className="text-[1.5rem] font-[800]">
-            {" "}
             Current Turn: {state.currentTurn.label}
+          </p>
+          <p className="text-[1.5rem] font-[800]">
+            You are: {playerColor?.label || "Spectator"}
           </p>
           <div className="flex ">
             {state.board.map((row, rowIndex) => (

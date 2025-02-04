@@ -2,7 +2,7 @@
 import { Server } from 'socket.io';
 import express from 'express';
 import { createServer } from 'http';
-import { GameState, Move, PieceColor } from './types';
+import { GameState, Move, PieceColor, PlayerModel } from './types';
 
 const app = express();
 const httpServer = createServer(app);
@@ -102,7 +102,7 @@ class GameServer {
       board: Array(8)
         .fill(null)
         .map(() => Array(8).fill(null)),
-      currentTurn: PieceColor.WHITE,
+      currentTurn: { label: PieceColor.WHITE },
       moveCount: 0,
     };
   }
