@@ -42,6 +42,7 @@ const GameEngine = (): ReactElement => {
   const [selectedPiece, setSelectedPiece] = useState<Coordinate | null>(null);
 
   // remove this to a context file
+
   useEffect(() => {
     const newSocket = io("http://localhost:3000");
 
@@ -90,7 +91,7 @@ const GameEngine = (): ReactElement => {
     return () => {
       newSocket.close();
     };
-  }, [playerColor, gameStatus]);
+  }, [roomId, playerColor, gameStatus]);
 
   const createRoom = () => {
     console.log("Creating room");
