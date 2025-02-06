@@ -15,6 +15,8 @@ import {
 
 const GameEngine = (): ReactElement => {
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [roomInputValue, setRoomInputValue] = useState("");
+
   const [roomId, setRoomId] = useState<string | null>(null);
   const [gameStatus, setGameStatus] = useState<
     "waiting" | "playing" | "finished"
@@ -48,21 +50,25 @@ const GameEngine = (): ReactElement => {
     });
 
     newSocket.on("roomCreated", ({ roomId, playerColor, gameState }) => {
+      console.log("Room created:", roomId);
       setRoomId(roomId);
-      setPlayerColor(playerColor);
+      setPlayerColor(new PlayerModel(playerColor));
       setState(gameState);
       setGameStatus("waiting");
     });
 
     newSocket.on("gameJoined", ({ roomId, playerColor, gameState }) => {
+      console.log("Joined room:", roomId);
       setRoomId(roomId);
-      setPlayerColor(playerColor);
+      setPlayerColor(new PlayerModel(playerColor));
       setState(gameState);
     });
 
     newSocket.on("gameStart", ({ gameState }) => {
+      console.log("Game starting");
       setState(gameState);
       setGameStatus("playing");
+      initializePieces();
     });
 
     newSocket.on("moveMade", ({ gameState, move }) => {
@@ -84,13 +90,15 @@ const GameEngine = (): ReactElement => {
     return () => {
       newSocket.close();
     };
-  }, []);
+  }, [playerColor, gameStatus]);
 
   const createRoom = () => {
+    console.log("Creating room");
     socket?.emit("createRoom");
   };
 
   const joinRoom = (roomId: string) => {
+    console.log("Joining room:", roomId);
     socket?.emit("joinRoom", roomId);
   };
 
@@ -110,8 +118,27 @@ const GameEngine = (): ReactElement => {
     fromX: number,
     fromY: number,
     toX: number,
-    toY: number
+    toY: number,
+    piece: GamePiece
   ): Coordinate | null => {
+    if (piece.crowned) {
+      // For crowned pieces, find any piece along the diagonal path
+      const dirX = toX > fromX ? 1 : -1;
+      const dirY = toY > fromY ? 1 : -1;
+      let x = fromX + dirX;
+      let y = fromY + dirY;
+
+      while (x !== toX && y !== toY) {
+        const coord = new Coordinate(x, y);
+        if (getPiece(coord)) {
+          return coord;
+        }
+        x += dirX;
+        y += dirY;
+      }
+      return null;
+    }
+
     if (toX === fromX + 2 && toY === fromY + 2) {
       return new Coordinate(fromX + 1, fromY + 1);
     } else if (toX === fromX - 2 && toY === fromY - 2) {
@@ -123,6 +150,7 @@ const GameEngine = (): ReactElement => {
     }
     return null;
   };
+
   const validMove = (
     piece: GamePiece,
     from: Coordinate,
@@ -135,22 +163,26 @@ const GameEngine = (): ReactElement => {
 
     const { y: fy } = from;
     const { y: ty } = to;
+    const { x: fx } = from;
+    const { x: tx } = to;
 
     let valid = false;
+    const isDiagonalMove = Math.abs(tx - fx) === Math.abs(ty - fy);
 
-    if (ty > fy && piece.color === PieceColor.WHITE) {
-      valid = true;
+    // Regular pieces can only move forward diagonally
+    if (!piece.crowned) {
+      if (ty > fy && piece.color === PieceColor.WHITE && isDiagonalMove) {
+        valid = true;
+      }
+      if (ty < fy && piece.color === PieceColor.BLACK && isDiagonalMove) {
+        valid = true;
+      }
+    } else {
+      // Crowned pieces can move in any diagonal direction
+      if (isDiagonalMove) {
+        valid = true;
+      }
     }
-    if (ty < fy && piece.color === PieceColor.BLACK) {
-      valid = true;
-    }
-    if (ty > fy && piece.color === PieceColor.BLACK && piece.crowned) {
-      valid = true;
-    }
-    if (ty < fy && piece.color === PieceColor.WHITE && piece.crowned) {
-      valid = true;
-    }
-
     return valid;
   };
 
@@ -164,11 +196,16 @@ const GameEngine = (): ReactElement => {
     // Check if destination is empty
     if (getPiece(to)) return false;
 
-    const jumpedCoord = getJumpedCoordinate(from.x, from.y, to.x, to.y);
+    const jumpedCoord = getJumpedCoordinate(from.x, from.y, to.x, to.y, piece);
     if (!jumpedCoord) return false;
 
     const jumpedPiece = getPiece(jumpedCoord);
     if (!jumpedPiece || jumpedPiece.color === piece.color) return false;
+
+    // For crowned pieces, allow jumps in any diagonal direction
+    if (piece.crowned) {
+      return Math.abs(to.x - from.x) === 2 && Math.abs(to.y - from.y) === 2;
+    }
 
     return validMove(piece, from, to);
   };
@@ -211,9 +248,20 @@ const GameEngine = (): ReactElement => {
     if (!piece) return;
 
     // Handle jumped piece
-    const jumpedCoord = getJumpedCoordinate(from.x, from.y, to.x, to.y);
+    const jumpedCoord = getJumpedCoordinate(from.x, from.y, to.x, to.y, piece);
     if (jumpedCoord) {
       newBoard[jumpedCoord.x][jumpedCoord.y] = null;
+
+      // Check for follow-up jumps
+      const followUpJumps = getValidMoves(to).filter((move) =>
+        validJump(piece, move.from, move.to)
+      );
+
+      if (followUpJumps.length > 0) {
+        // Keep the same player's turn for chain captures
+        setSelectedPiece(to);
+        return;
+      }
     }
 
     // Move piece
@@ -242,22 +290,31 @@ const GameEngine = (): ReactElement => {
   };
 
   const handlePieceClick = (x: number, y: number) => {
+    console.log("Piece clicked:", x, y);
+    console.log("Current game status:", gameStatus);
+    console.log("Current turn:", state.currentTurn.label);
+    console.log("Player color:", playerColor?.label);
     if (
       gameStatus !== "playing" ||
       state.currentTurn.label !== playerColor?.label
-    )
+    ) {
+      console.log("Click rejected - not player turn or game not playing");
       return;
+    }
 
     const clickedCoord = new Coordinate(x, y);
     const piece = getPiece(clickedCoord);
+    console.log("Clicked piece:", piece);
 
     if (piece && piece.color === state.currentTurn.label) {
+      console.log("Selecting piece");
       setSelectedPiece(clickedCoord);
     } else if (selectedPiece && isValidMove(selectedPiece, clickedCoord)) {
-      // Handle move logic here
+      console.log("Making move");
       makeMove(selectedPiece, clickedCoord);
       setSelectedPiece(null);
     } else {
+      console.log("Deselecting piece");
       setSelectedPiece(null);
     }
   };
@@ -299,10 +356,11 @@ const GameEngine = (): ReactElement => {
               type="text"
               placeholder="Room ID"
               className="px-2 border rounded"
-              onChange={(e) => setRoomId(e.target.value)}
+              value={roomInputValue}
+              onChange={(e) => setRoomInputValue(e.target.value)}
             />
             <button
-              onClick={() => roomId && joinRoom(roomId)}
+              onClick={() => roomInputValue && joinRoom(roomInputValue)}
               className="px-4 py-2 bg-green-500 text-white rounded"
             >
               Join Room

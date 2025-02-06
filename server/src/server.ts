@@ -1,4 +1,5 @@
-// server.ts
+import dotenv from 'dotenv';
+dotenv.config();
 import { Server } from 'socket.io';
 import express from 'express';
 import { createServer } from 'http';
@@ -30,12 +31,20 @@ class GameServer {
       console.log('Client connected:', socket.id);
 
       socket.on('createRoom', () => {
-        const roomId = this.createRoom(socket.id);
+        const roomId = this.generateRoomId();
+        const initialState = this.createInitialGameState();
+
+        this.rooms.set(roomId, {
+          id: roomId,
+          players: { white: socket.id },
+          gameState: initialState,
+        });
+
         socket.join(roomId);
         socket.emit('roomCreated', {
           roomId,
           playerColor: PieceColor.WHITE,
-          gameState: this.rooms.get(roomId)?.gameState,
+          gameState: initialState,
         });
       });
 
@@ -52,17 +61,21 @@ class GameServer {
           return;
         }
 
+        // Add second player
         room.players.black = socket.id;
         socket.join(roomId);
 
-        // Notify both players
+        // Notify the joining player
         socket.emit('gameJoined', {
           roomId,
           playerColor: PieceColor.BLACK,
           gameState: room.gameState,
         });
 
-        io.to(roomId).emit('gameStart', { gameState: room.gameState });
+        // Start the game for both players
+        io.to(roomId).emit('gameStart', {
+          gameState: room.gameState,
+        });
       });
 
       socket.on('move', ({ roomId, move }: { roomId: string; move: Move }) => {
@@ -86,31 +99,74 @@ class GameServer {
     });
   }
 
-  private createRoom(playerId: string): string {
-    const roomId = Math.random().toString(36).substring(7);
-    this.rooms.set(roomId, {
-      id: roomId,
-      players: { white: playerId },
-      gameState: this.createInitialGameState(),
-    });
-    return roomId;
+  private generateRoomId(): string {
+    return Math.random().toString(36).substring(2, 8);
   }
 
+  // private createRoom(playerId: string): string {
+  //   const roomId = Math.random().toString(36).substring(7);
+  //   this.rooms.set(roomId, {
+  //     id: roomId,
+  //     players: { white: playerId },
+  //     gameState: this.createInitialGameState(),
+  //   });
+  //   return roomId;
+  // }
+
   private createInitialGameState(): GameState {
-    // Initialize game state similar to your current implementation
+    const board = Array(8)
+      .fill(null)
+      .map(() => Array(8).fill(null));
+
+    // Set up white pieces
+    [1, 3, 5, 7, 0, 2, 4, 6, 1, 3, 5, 7].forEach((x, index) => {
+      const y = Math.floor(index / 4);
+      board[x][y] = { color: PieceColor.WHITE, crowned: false };
+    });
+
+    // Set up black pieces
+    [0, 2, 4, 6, 1, 3, 5, 7, 0, 2, 4, 6].forEach((x, index) => {
+      const y = 5 + Math.floor(index / 4);
+      board[x][y] = { color: PieceColor.BLACK, crowned: false };
+    });
+
     return {
-      board: Array(8)
-        .fill(null)
-        .map(() => Array(8).fill(null)),
+      board,
       currentTurn: { label: PieceColor.WHITE },
       moveCount: 0,
     };
   }
 
   private processMove(gameState: GameState, move: Move): GameState {
-    // Implement move processing logic
-    // Return updated game state
-    return gameState;
+    const newBoard = JSON.parse(JSON.stringify(gameState.board));
+    const piece = newBoard[move.from.x][move.from.y];
+
+    // Handle the jumped piece
+    const jumpedX = Math.floor((move.from.x + move.to.x) / 2);
+    const jumpedY = Math.floor((move.from.y + move.to.y) / 2);
+
+    if (Math.abs(move.to.x - move.from.x) >= 2) {
+      newBoard[jumpedX][jumpedY] = null;
+    }
+
+    // Move piece
+    newBoard[move.to.x][move.to.y] = {
+      ...piece,
+      crowned:
+        piece.crowned ||
+        (piece.color === PieceColor.WHITE && move.to.y === 7) ||
+        (piece.color === PieceColor.BLACK && move.to.y === 0),
+    };
+    newBoard[move.from.x][move.from.y] = null;
+
+    return {
+      board: newBoard,
+      currentTurn:
+        gameState.currentTurn.label === PieceColor.WHITE
+          ? { label: PieceColor.BLACK }
+          : { label: PieceColor.WHITE },
+      moveCount: gameState.moveCount + 1,
+    };
   }
 
   private handleDisconnect(socketId: string) {
