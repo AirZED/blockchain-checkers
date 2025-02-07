@@ -3,7 +3,7 @@ dotenv.config();
 import { Server } from 'socket.io';
 import express from 'express';
 import { createServer } from 'http';
-import { GameState, Move, PieceColor, PlayerModel } from './types';
+import { GameEngineState, Move, PieceColor } from './types';
 
 const app = express();
 const httpServer = createServer(app);
@@ -20,7 +20,7 @@ interface GameRoom {
     white?: string;
     black?: string;
   };
-  gameState: GameState;
+  gameState: GameEngineState;
 }
 
 class GameServer {
@@ -115,7 +115,7 @@ class GameServer {
   //   return roomId;
   // }
 
-  private createInitialGameState(): GameState {
+  private createInitialGameState(): GameEngineState {
     const board = Array(8)
       .fill(null)
       .map(() => Array(8).fill(null));
@@ -139,7 +139,7 @@ class GameServer {
     };
   }
 
-  private processMove(gameState: GameState, move: Move): GameState {
+  private processMove(gameState: GameEngineState, move: Move): GameEngineState {
     const newBoard = JSON.parse(JSON.stringify(gameState.board));
     const piece = newBoard[move.from.x][move.from.y];
 

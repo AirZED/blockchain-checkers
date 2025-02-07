@@ -1,6 +1,5 @@
-export type PlayerModel = {
-  label: PieceColor;
-};
+import Coordinate from '../game/coordinate';
+import { PlayerModel } from '../game/player';
 
 export enum PieceColor {
   BLACK = 'BLACK',
@@ -17,13 +16,20 @@ export type GamePiece = {
   crowned: boolean;
 };
 
-export type GameState = {
+export type GameEngineState = {
   board: (GamePiece | null)[][];
   currentTurn: PlayerModel;
   moveCount: number;
 };
 
-export type Coordinate = {
-  x: number;
-  y: number;
-};
+export enum Letters {
+  Z,
+  A,
+  B,
+  C,
+  D,
+  E,
+  F,
+  G,
+  H,
+}
