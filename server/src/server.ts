@@ -76,7 +76,6 @@ class GameServer {
         io.to(roomId).emit('gameStart', {
           gameState: room.gameState,
         });
-
       });
 
       socket.on('move', ({ roomId, move }: { roomId: string; move: Move }) => {
@@ -85,6 +84,8 @@ class GameServer {
 
         // Validate move and update game state
         const newState = this.processMove(room.gameState, move);
+
+        console.log('New state:', newState);
         room.gameState = newState;
 
         // Broadcast the move to all players in the room

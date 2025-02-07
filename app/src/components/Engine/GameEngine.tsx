@@ -1,5 +1,4 @@
 import { useState, useEffect, ReactElement } from "react";
-import { io, Socket } from "socket.io-client";
 import pieceImgLight from "../../assets/white.png";
 import pieceImgDark from "../../assets/black.png";
 import kingPieceImgLight from "../../assets/whiteKing.png";
@@ -15,8 +14,6 @@ import {
 import { socket } from "../../utils/socket";
 
 const GameEngine = (): ReactElement => {
-  socket.connect();
-
   const [roomInputValue, setRoomInputValue] = useState("");
 
   const [roomId, setRoomId] = useState<string | null>(null);
@@ -46,10 +43,9 @@ const GameEngine = (): ReactElement => {
   // remove this to a context file
 
   useEffect(() => {
-    socket.on("connect", () => {
-      console.log("Connected to server");
-    });
+    socket.connect();
 
+    // created room and waiting for other player to join
     socket.on("roomCreated", ({ roomId, playerColor, gameState }) => {
       console.log("Room created:", roomId);
       setRoomId(roomId);
@@ -58,6 +54,7 @@ const GameEngine = (): ReactElement => {
       setGameStatus("waiting");
     });
 
+    // joined room and waiting for game to start
     socket.on("gameJoined", ({ roomId, playerColor, gameState }) => {
       console.log("Joined room:", roomId);
       setRoomId(roomId);
@@ -102,7 +99,6 @@ const GameEngine = (): ReactElement => {
   };
 
   const getPiece = (coord: Coordinate): GamePiece | null => {
-    console.log("getPiece called with coord:", coord);
     if (!coord.isOnBoard()) {
       return null;
     }
@@ -236,10 +232,12 @@ const GameEngine = (): ReactElement => {
   const makeMove = (from: Coordinate, to: Coordinate) => {
     if (!roomId || state.currentTurn !== playerColor) return;
 
-    socket?.emit("move", {
+    const t = socket?.emit("move", {
       roomId,
       move: { from, to },
     });
+
+    console.log("Move made: socket state ", t);
 
     const newBoard = [...state.board];
     const piece = getPiece(from);
@@ -289,10 +287,6 @@ const GameEngine = (): ReactElement => {
   };
 
   const handlePieceClick = (x: number, y: number) => {
-    console.log("Piece clicked:", x, y);
-    console.log("Current game status:", gameStatus);
-    console.log("Current turn:", state.currentTurn.label);
-    console.log("Player color:", playerColor?.label);
     if (
       gameStatus !== "playing" ||
       state.currentTurn.label !== playerColor?.label
