@@ -140,7 +140,11 @@ class GameServer {
   }
 
   private processMove(gameState: GameEngineState, move: Move): GameEngineState {
+    console.log('Processing move:', move);
+    console.log('Current game state:', gameState);
     const newBoard = JSON.parse(JSON.stringify(gameState.board));
+
+    console.log('newBoard', newBoard);
     const piece = newBoard[move.from.x][move.from.y];
 
     // Handle the jumped piece
