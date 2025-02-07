@@ -108,7 +108,7 @@ class GameServer {
   // private createRoom(playerId: string): string {
   //   const roomId = Math.random().toString(36).substring(7);
   //   this.rooms.set(roomId, {
-  //     id: roomId,
+  //     id: roomId,g
   //     players: { white: playerId },
   //     gameState: this.createInitialGameState(),
   //   });
