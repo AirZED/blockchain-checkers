@@ -99,6 +99,7 @@ const GameEngine = (): ReactElement => {
   };
 
   const getPiece = (coord: Coordinate): GamePiece | null => {
+    console.log("Getting piece at", coord);
     if (!coord.isOnBoard()) {
       return null;
     }
@@ -230,7 +231,11 @@ const GameEngine = (): ReactElement => {
   };
 
   const makeMove = (from: Coordinate, to: Coordinate) => {
-    if (!roomId || state.currentTurn !== playerColor) return;
+    console.log("Making move from", from, "to", to);
+    console.log("Current turn:", state.currentTurn);
+    console.log("Player color:", playerColor);
+    console.log("Room ID:", roomId);
+    if (!roomId || state.currentTurn.label !== playerColor?.label) return;
 
     const t = socket?.emit("move", {
       roomId,
@@ -297,13 +302,14 @@ const GameEngine = (): ReactElement => {
 
     const clickedCoord = new Coordinate(x, y);
     const piece = getPiece(clickedCoord);
-    console.log("Clicked piece:", piece);
+
+    console.log("selected piece", selectedPiece);
 
     if (piece && piece.color === state.currentTurn.label) {
       console.log("Selecting piece");
       setSelectedPiece(clickedCoord);
     } else if (selectedPiece && isValidMove(selectedPiece, clickedCoord)) {
-      console.log("Making move");
+      console.log("Making move...");
       makeMove(selectedPiece, clickedCoord);
       setSelectedPiece(null);
     } else {
