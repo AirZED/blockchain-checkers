@@ -12,9 +12,11 @@ import {
   Move,
   PieceColor,
 } from "../../utils/contants";
+import { socket } from "../../utils/socket";
 
 const GameEngine = (): ReactElement => {
-  const [socket, setSocket] = useState<Socket | null>(null);
+  socket.connect();
+
   const [roomInputValue, setRoomInputValue] = useState("");
 
   const [roomId, setRoomId] = useState<string | null>(null);
@@ -44,13 +46,11 @@ const GameEngine = (): ReactElement => {
   // remove this to a context file
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3000");
-
-    newSocket.on("connect", () => {
+    socket.on("connect", () => {
       console.log("Connected to server");
     });
 
-    newSocket.on("roomCreated", ({ roomId, playerColor, gameState }) => {
+    socket.on("roomCreated", ({ roomId, playerColor, gameState }) => {
       console.log("Room created:", roomId);
       setRoomId(roomId);
       setPlayerColor(new PlayerModel(playerColor));
@@ -58,40 +58,38 @@ const GameEngine = (): ReactElement => {
       setGameStatus("waiting");
     });
 
-    newSocket.on("gameJoined", ({ roomId, playerColor, gameState }) => {
+    socket.on("gameJoined", ({ roomId, playerColor, gameState }) => {
       console.log("Joined room:", roomId);
       setRoomId(roomId);
       setPlayerColor(new PlayerModel(playerColor));
       setState(gameState);
     });
 
-    newSocket.on("gameStart", ({ gameState }) => {
+    socket.on("gameStart", ({ gameState }) => {
       console.log("Game starting");
       setState(gameState);
       setGameStatus("playing");
       initializePieces();
     });
 
-    newSocket.on("moveMade", ({ gameState, move }) => {
+    socket.on("moveMade", ({ gameState, move }) => {
       setState(gameState);
       // Optional: Add move animation or highlighting
     });
 
-    newSocket.on("playerDisconnected", ({ player }) => {
+    socket.on("playerDisconnected", ({ player }) => {
       setError(`${player} player disconnected`);
       setGameStatus("waiting");
     });
 
-    newSocket.on("error", (message) => {
+    socket.on("error", (message) => {
       setError(message);
     });
 
-    setSocket(newSocket);
-
     return () => {
-      newSocket.close();
+      socket.close();
     };
-  }, [roomId, playerColor, gameStatus]);
+  }, [socket]);
 
   const createRoom = () => {
     console.log("Creating room");

@@ -76,6 +76,7 @@ class GameServer {
         io.to(roomId).emit('gameStart', {
           gameState: room.gameState,
         });
+
       });
 
       socket.on('move', ({ roomId, move }: { roomId: string; move: Move }) => {
