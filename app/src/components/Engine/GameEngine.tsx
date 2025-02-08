@@ -117,12 +117,16 @@ const GameEngine = (): ReactElement => {
     toY: number,
     piece: GamePiece
   ): Coordinate | null => {
+    console.log("The piece", piece);
     if (piece.crowned) {
       // For crowned pieces, find any piece along the diagonal path
       const dirX = toX > fromX ? 1 : -1;
       const dirY = toY > fromY ? 1 : -1;
       let x = fromX + dirX;
       let y = fromY + dirY;
+
+      console.log("x", x);
+      console.log("y", y);
 
       while (x !== toX && y !== toY) {
         const coord = new Coordinate(x, y);
@@ -192,7 +196,11 @@ const GameEngine = (): ReactElement => {
     // Check if destination is empty
     if (getPiece(to)) return false;
 
+    console.log("piece", piece);
+
     const jumpedCoord = getJumpedCoordinate(from.x, from.y, to.x, to.y, piece);
+
+    console.log("The jumped coord", jumpedCoord);
     if (!jumpedCoord) return false;
 
     const jumpedPiece = getPiece(jumpedCoord);
@@ -237,12 +245,10 @@ const GameEngine = (): ReactElement => {
     console.log("Room ID:", roomId);
     if (!roomId || state.currentTurn.label !== playerColor?.label) return;
 
-    const t = socket?.emit("move", {
+    socket?.emit("move", {
       roomId,
       move: { from, to },
     });
-
-    console.log("Move made: socket state ", t);
 
     const newBoard = [...state.board];
     const piece = getPiece(from);
@@ -341,7 +347,6 @@ const GameEngine = (): ReactElement => {
 
   return (
     <div>
-      {" "}
       {!roomId ? (
         <div className="flex gap-4">
           <button

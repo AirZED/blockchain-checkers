@@ -3,7 +3,8 @@ dotenv.config();
 import { Server } from 'socket.io';
 import express from 'express';
 import { createServer } from 'http';
-import { GameEngineState, Move, PieceColor } from './types';
+import { GameEngineState, GamePiece, Move, PieceColor } from './types';
+import Coordinate from './game/coordinate';
 
 const app = express();
 const httpServer = createServer(app);
@@ -139,6 +140,13 @@ class GameServer {
     };
   }
 
+  private shouldCrown = (piece: GamePiece, move: Move): boolean => {
+    return (
+      (piece.color === PieceColor.WHITE && move.to.y === 7) ||
+      (piece.color === PieceColor.BLACK && move.to.y === 0)
+    );
+  };
+
   private processMove(gameState: GameEngineState, move: Move): GameEngineState {
     console.log('Processing move:', move);
     console.log('Current game state:', gameState);
@@ -158,11 +166,9 @@ class GameServer {
     // Move piece
     newBoard[move.to.x][move.to.y] = {
       ...piece,
-      crowned:
-        piece.crowned ||
-        (piece.color === PieceColor.WHITE && move.to.y === 7) ||
-        (piece.color === PieceColor.BLACK && move.to.y === 0),
+      crowned: piece.crowned || this.shouldCrown(piece, move),
     };
+
     newBoard[move.from.x][move.from.y] = null;
 
     return {
