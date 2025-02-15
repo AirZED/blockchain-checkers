@@ -6,7 +6,7 @@ use std::{
 };
 
 use axum::{http::HeaderValue, routing::get};
-use rand::Rng;
+use rand::{thread_rng, Rng};
 use socketioxide::{extract::SocketRef, SocketIo};
 use tower_http::cors::{AllowOrigin, Any, CorsLayer};
 
@@ -115,9 +115,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     fn generate_room_id() -> String {
-        let random_number: f64 = rand::rng().random::<f64>();
+        let characters: Vec<char> =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+                .chars()
+                .collect();
+        let mut random_number = rand::rng();
 
-        random_number.to_string()
+        (0..6)
+            .map(|_| characters[random_number.random_range(0..characters.len())])
+            .collect()
     }
 
     let app = axum::Router::new()
