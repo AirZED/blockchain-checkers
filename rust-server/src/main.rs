@@ -1,14 +1,13 @@
 // https://github.com/Totodore/socketioxide/blob/main/examples/axum-echo-tls/axum_echo-tls.rs
 
 use std::{
-    collections::HashMap,
     net::{Ipv4Addr, SocketAddrV4},
     vec,
 };
 
-use axum::{http::HeaderValue, routing::get, Router};
-use socketioxide::{extract::SocketRef, socket::Sid, SocketIo};
-use tokio::net::TcpListener;
+use axum::{http::HeaderValue, routing::get};
+use rand::Rng;
+use socketioxide::{extract::SocketRef, SocketIo};
 use tower_http::cors::{AllowOrigin, Any, CorsLayer};
 
 use serde::Serialize;
@@ -54,7 +53,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut rooms: Vec<GameRoom> = vec![];
 
         socket.on("createRoom", move |socket: SocketRef| {
-            let room_id = uuid::Uuid::new_v4().to_string();
+            let room_id = generate_room_id();
             let initial_state = create_initial_game_state();
 
             rooms.push(GameRoom {
@@ -113,6 +112,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             current_turn: PieceColor::White, // White starts the game
             move_count: 0,
         }
+    }
+
+    fn generate_room_id() -> String {
+        let random_number: f64 = rand::rng().random::<f64>();
+
+        random_number.to_string()
     }
 
     let app = axum::Router::new()
