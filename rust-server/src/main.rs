@@ -1,23 +1,82 @@
-use axum::{http, routing::get, Router};
-use socketioxide::{extract::SocketRef, SocketIo};
+// https://github.com/Totodore/socketioxide/blob/main/examples/axum-echo-tls/axum_echo-tls.rs
+
+use std::{
+    collections::HashMap,
+    net::{Ipv4Addr, SocketAddrV4},
+    vec,
+};
+
+use axum::{http::HeaderValue, routing::get, Router};
+use socketioxide::{extract::SocketRef, socket::Sid, SocketIo};
 use tokio::net::TcpListener;
-use tower_http::cors::{CorsLayer, Origin};
+use tower_http::cors::{AllowOrigin, Any, CorsLayer};
+
+use serde::Serialize;
+
+#[derive(Debug, Clone, Copy, Serialize)]
+enum PieceColor {
+    White,
+    Black,
+}
+
+#[derive(Debug, Clone, Copy, Serialize)]
+struct Piece {
+    color: PieceColor,
+    crowned: bool,
+}
+
+#[derive(Debug, Serialize, Clone)]
+struct GameState {
+    board: [[Option<Piece>; 8]; 8],
+    current_turn: PieceColor,
+    move_count: u32,
+}
+
+#[derive(Debug, Clone)]
+struct GameRoom {
+    id: String,
+    players: Players,
+    game_state: GameState,
+}
+
+#[derive(Debug, Clone)]
+struct Players {
+    white: Option<String>,
+    black: Option<String>,
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Create the Socket.io layer
     let (layer, io) = SocketIo::new_layer();
 
-    // Register a handler for the default namespace
     io.ns("/", |socket: SocketRef| {
         println!("Client connected: {:?}", socket.id);
+        let mut rooms: Vec<GameRoom> = vec![];
 
-        socket.on("createRoom", |socket: SocketRef| {
-            let room_id = 2;
+        socket.on("createRoom", move |socket: SocketRef| {
+            let room_id = uuid::Uuid::new_v4().to_string();
+            let initial_state = create_initial_game_state();
 
-            socket.join(roomId);
+            rooms.push(GameRoom {
+                id: room_id.to_owned(),
+                players: Players {
+                    white: Some(socket.id.to_string()),
+                    black: None,
+                },
+                game_state: initial_state.clone(),
+            });
 
-            socket.emit("roomCreated", room_id);
+            socket.join(room_id.to_owned());
+            socket
+                .emit(
+                    "roomCreated",
+                    &serde_json::json!({
+                        "roomId": room_id,
+                        "playerId": socket.id.to_string(),
+                        "gameState": initial_state
+                    }),
+                )
+                .ok();
         });
 
         // Listen for "message" event
@@ -26,18 +85,50 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         });
     });
 
-    let app = Router::new()
-        .route("/", get(|| async { "Hello, Socket.io in Rust!" }))
+    fn create_initial_game_state() -> GameState {
+        let mut board: [[Option<Piece>; 8]; 8] = [[None; 8]; 8];
+
+        // Set up white pieces
+        let white_positions = [1, 3, 5, 7, 0, 2, 4, 6, 1, 3, 5, 7];
+        for (index, &x) in white_positions.iter().enumerate() {
+            let y = index / 4;
+            board[x][y] = Some(Piece {
+                color: PieceColor::White,
+                crowned: false,
+            });
+        }
+
+        // Set up black pieces
+        let black_positions = [0, 2, 4, 6, 1, 3, 5, 7, 0, 2, 4, 6];
+        for (index, &x) in black_positions.iter().enumerate() {
+            let y = 5 + (index / 4);
+            board[x][y] = Some(Piece {
+                color: PieceColor::Black,
+                crowned: false,
+            });
+        }
+
+        GameState {
+            board,
+            current_turn: PieceColor::White, // White starts the game
+            move_count: 0,
+        }
+    }
+
+    let app = axum::Router::new()
+        .route("/", get(|| async { "Hello, World!" }))
+        .layer(layer)
         .layer(
             CorsLayer::new()
-                .allow_origin("http://localhost:5173".parse::<Origin>().unwrap())
-                .allow_methods([http::Method::GET, http::Method::POST]),
-        ) //allow cors for frontend
-        .layer(layer);
+                .allow_origin(AllowOrigin::exact(
+                    "http://localhost:5173".parse::<HeaderValue>().unwrap(),
+                    // "https://your-production-domain.com".parse::<HeaderValue>().unwrap()
+                ))
+                .allow_methods(Any),
+        );
 
-    // Bind to a port and start the server
-    let listener = TcpListener::bind("127.0.0.1:3000").await.unwrap();
-    println!("Server running on http://127.0.0.1:3000");
+    let socket_address = SocketAddrV4::new(Ipv4Addr::UNSPECIFIED, 3000);
+    let listener = tokio::net::TcpListener::bind(socket_address).await.unwrap();
     axum::serve(listener, app).await.unwrap();
 
     Ok(())
