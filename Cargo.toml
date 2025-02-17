@@ -1,7 +1,5 @@
 [workspace]
-members = [
-    "programs/*"
-, "rust-server", "sandbox"]
+members = ["programs/*", "rust-server"]
 resolver = "2"
 
 [profile.release]

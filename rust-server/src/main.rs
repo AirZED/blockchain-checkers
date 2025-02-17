@@ -6,13 +6,13 @@ use std::{
 };
 
 use axum::{http::HeaderValue, routing::get};
-use rand::{thread_rng, Rng};
+use rand::Rng;
 use socketioxide::{extract::SocketRef, SocketIo};
 use tower_http::cors::{AllowOrigin, Any, CorsLayer};
 
 use serde::Serialize;
 
-#[derive(Debug, Clone, Copy, Serialize)]
+#[derive(Debug, Clone, Copy, Serialize, PartialEq)]
 enum PieceColor {
     White,
     Black,
@@ -44,6 +44,14 @@ struct Players {
     black: Option<String>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Coordinate(pub usize, pub usize);
+
+struct Move {
+    from: Coordinate,
+    to: Coordinate,
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (layer, io) = SocketIo::new_layer();
@@ -71,11 +79,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     "roomCreated",
                     &serde_json::json!({
                         "roomId": room_id,
-                        "playerId": socket.id.to_string(),
+                        "playerColor": PieceColor::White,
                         "gameState": initial_state
                     }),
                 )
                 .ok();
+        });
+
+        socket.on("joinRoom", move |roomId: &str| {
+            let room = rooms.iter().find(|room: &GameRoom| room.id == roomId);
         });
 
         // Listen for "message" event
@@ -112,6 +124,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             current_turn: PieceColor::White, // White starts the game
             move_count: 0,
         }
+    }
+
+    fn should_crown(piece: &Piece, to: &Coordinate) -> bool {
+        let Coordinate(_, y) = to;
+        (*y == 0 && piece.color == PieceColor::Black)
+            || (*y == 7 && piece.color == PieceColor::White)
     }
 
     fn generate_room_id() -> String {
