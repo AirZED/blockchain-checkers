@@ -1,22 +1,18 @@
-// https://github.com/Totodore/socketioxide/blob/main/examples/axum-echo-tls/axum_echo-tls.rs
-
 use std::{
     collections::HashMap,
     net::{Ipv4Addr, SocketAddrV4},
     sync::{Arc, Mutex},
-    vec,
 };
 
 use axum::{http::HeaderValue, routing::get};
 use rand::Rng;
 use socketioxide::{
     extract::{Data, SocketRef},
-    handler::Value,
     SocketIo,
 };
 use tower_http::cors::{AllowOrigin, Any, CorsLayer};
 
-use serde::{de::value, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, Serialize, PartialEq)]
 enum PieceColor {
@@ -43,8 +39,8 @@ struct Player {
 
 #[derive(Debug, Clone, PartialEq)]
 struct Players {
-    WHITE: Option<String>,
-    BLACK: Option<String>,
+    white: Option<String>,
+    black: Option<String>,
 }
 
 #[derive(Debug, Serialize, Clone, PartialEq, Copy)]
@@ -54,16 +50,16 @@ struct GameState {
     move_count: u32,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Coordinate(pub usize, pub usize);
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 struct Movement {
     from: Coordinate,
     to: Coordinate,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 struct MovementSocket {
     room_id: String,
     movement: Movement,
@@ -89,8 +85,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     room_id.to_owned(),
                     GameRoom {
                         players: Players {
-                            WHITE: Some(socket.id.to_string()),
-                            BLACK: None,
+                            white: Some(socket.id.to_string()),
+                            black: None,
                         },
                         game_state: initial_state.clone(),
                     },
@@ -114,16 +110,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "joinRoom",
                 move |socket: SocketRef, Data::<String>(room_id)| {
                     match rooms_join.lock().unwrap().get_mut(&room_id) {
-                        Some(room) => match &room.players.BLACK {
+                        Some(room) => match &room.players.black {
                             Some(_) => {
                                 socket.emit("error", "Room is already full").ok();
                             }
                             None => {
-                                room.players.BLACK = Some(socket.id.to_string());
+                                room.players.black = Some(socket.id.to_string());
                                 socket.join([room_id.to_owned()]);
 
                                 let game_state = room.game_state.clone();
-                                drop(rooms); // Release the lock before the async operations
+                                // drop(rooms); // Release the lock before the async operations
 
                                 socket
                                     .emit(
@@ -157,14 +153,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 },
             );
 
-            // let rooms_move = Arc::clone(&rooms);
-            // socket.on("move", move |socket: SocketRef, Data::<MovementSocket>::(data)| {
-            //     match rooms_move.lock().unwrap().get_mut(&data.room_id) {
-            //         Some(room) => {}
+            let rooms_move = Arc::clone(&rooms);
+            socket.on(
+                "move",
+                move |socket: SocketRef, Data::<MovementSocket>(data)| {
+                    match rooms_move.lock().unwrap().get_mut(&data.room_id) {
+                        Some(room) => {}
 
-            //         None => {}
-            //     }
-            // });
+                        None => {
+                            socket.emit("error", "Room not found").ok();
+                        }
+                    };
+                },
+            );
+
             // Listen for "message" event
             socket.on("message", |socket: SocketRef| {
                 socket.emit("message-back", "Hello World!").ok();
