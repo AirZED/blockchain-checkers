@@ -18,7 +18,7 @@ export type GamePiece = {
 
 export type GameEngineState = {
   board: (GamePiece | null)[][];
-  currentTurn: PlayerModel;
+  current_turn: PlayerModel;
   moveCount: number;
 };
 

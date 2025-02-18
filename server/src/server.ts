@@ -135,7 +135,7 @@ class GameServer {
 
     return {
       board,
-      currentTurn: { label: PieceColor.WHITE },
+      current_turn: { label: PieceColor.WHITE },
       moveCount: 0,
     };
   }
@@ -173,8 +173,8 @@ class GameServer {
 
     return {
       board: newBoard,
-      currentTurn:
-        gameState.currentTurn.label === PieceColor.WHITE
+      current_turn:
+        gameState.current_turn.label === PieceColor.WHITE
           ? { label: PieceColor.BLACK }
           : { label: PieceColor.WHITE },
       moveCount: gameState.moveCount + 1,

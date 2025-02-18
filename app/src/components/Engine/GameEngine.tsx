@@ -30,7 +30,7 @@ const GameEngine = (): ReactElement => {
     board: Array(8)
       .fill(null)
       .map(() => Array(8).fill(null)),
-    currentTurn: lightPlayer,
+    current_turn: lightPlayer,
     moveCount: 0,
   });
 
@@ -48,6 +48,8 @@ const GameEngine = (): ReactElement => {
     // created room and waiting for other player to join
     socket.on("roomCreated", ({ roomId, playerColor, gameState }) => {
       console.log("Room created:", roomId);
+      console.log("Player color:", playerColor);
+      console.log("Game state:", gameState);
       setRoomId(roomId);
       setPlayerColor(new PlayerModel(playerColor));
       setState(gameState);
@@ -240,10 +242,10 @@ const GameEngine = (): ReactElement => {
 
   const makeMove = (from: Coordinate, to: Coordinate) => {
     console.log("Making move from", from, "to", to);
-    console.log("Current turn:", state.currentTurn);
+    console.log("Current turn:", state.current_turn);
     console.log("Player color:", playerColor);
     console.log("Room ID:", roomId);
-    if (!roomId || state.currentTurn.label !== playerColor?.label) return;
+    if (!roomId || state.current_turn.label !== playerColor?.label) return;
 
     socket?.emit("move", {
       roomId,
@@ -283,8 +285,8 @@ const GameEngine = (): ReactElement => {
     setState((prev) => ({
       ...prev,
       board: newBoard,
-      currentTurn:
-        prev.currentTurn.label === PieceColor.WHITE ? darkPlayer : lightPlayer,
+      current_turn:
+        prev.current_turn.label === PieceColor.WHITE ? darkPlayer : lightPlayer,
       moveCount: prev.moveCount + 1,
     }));
   };
@@ -300,7 +302,7 @@ const GameEngine = (): ReactElement => {
   const handlePieceClick = (x: number, y: number) => {
     if (
       gameStatus !== "playing" ||
-      state.currentTurn.label !== playerColor?.label
+      state.current_turn.label !== playerColor?.label
     ) {
       console.log("Click rejected - not player turn or game not playing");
       return;
@@ -311,7 +313,7 @@ const GameEngine = (): ReactElement => {
 
     console.log("selected piece", selectedPiece);
 
-    if (piece && piece.color === state.currentTurn.label) {
+    if (piece && piece.color === state.current_turn.label) {
       console.log("Selecting piece");
       setSelectedPiece(clickedCoord);
     } else if (selectedPiece && isValidMove(selectedPiece, clickedCoord)) {
@@ -374,7 +376,7 @@ const GameEngine = (): ReactElement => {
       ) : (
         <div className="flex flex-col gap-2">
           <p className="text-[1.5rem] font-[800]">
-            Current Turn: {state.currentTurn.label}
+            Current Turn: {state.current_turn.label}
           </p>
           <p className="text-[1.5rem] font-[800]">
             You are: {playerColor?.label || "Spectator"}
