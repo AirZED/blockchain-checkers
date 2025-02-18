@@ -67,9 +67,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     io.ns("/", |socket: SocketRef| {
         println!("Client connected: {:?}", socket.id);
 
-        let rooms_inside = &mut rooms;
-
-        socket.on("createRoom", move |socket: SocketRef| {
+        socket.on("createRoom", |socket: SocketRef| {
             let room_id = generate_room_id();
             let initial_state = create_initial_game_state();
 
@@ -108,7 +106,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             socket.emit("error", "Room is already full").ok();
                         }
                         None => {
-                            room.players.black = Some(socket.id.as_str());
+                            // room.players.black = Some(socket.id);
                             socket.join([room_id.to_owned()]);
 
                             socket
