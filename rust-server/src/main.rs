@@ -51,7 +51,10 @@ struct GameState {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
-pub struct Coordinate(pub usize, pub usize);
+struct Coordinate {
+    x: usize,
+    y: usize,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 struct Movement {
@@ -207,9 +210,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     fn should_crown(piece: &Piece, to: &Coordinate) -> bool {
-        let Coordinate(_, y) = to;
-        (*y == 0 && piece.color == PieceColor::BLACK)
-            || (*y == 7 && piece.color == PieceColor::WHITE)
+        let coordinate = Coordinate { x: to.x, y: to.y };
+        (coordinate.y == 0 && piece.color == PieceColor::BLACK)
+            || (coordinate.y == 7 && piece.color == PieceColor::WHITE)
     }
 
     fn generate_room_id() -> String {
@@ -221,6 +224,40 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 CHARSET[idx] as char
             })
             .collect()
+    }
+
+    fn process_move(game_state: &mut GameState, movement: &Movement) -> GameState {
+        let mut new_board = game_state.board.clone();
+        let Piece { color, crowned } = new_board[movement.from.x][movement.from.y].unwrap();
+
+        // handle the jump piece
+        let jumped_x = (movement.from.x + movement.to.x) / 2;
+        let jumped_y = (movement.from.y + movement.to.y) / 2;
+
+        if (movement.to.x as isize - movement.from.x as isize).abs() >= 2 {
+            new_board[jumped_x][jumped_y] = None;
+        }
+
+        // move piece
+        new_board[movement.to.x][movement.to.y] = Some(Piece {
+            color,
+            crowned: crowned || should_crown(&Piece { color, crowned }, &movement.to),
+        });
+
+        new_board[movement.from.x][movement.from.y] = None;
+
+        GameState {
+            board: new_board,
+            current_turn: match game_state.current_turn.label {
+                PieceColor::WHITE => Player {
+                    label: PieceColor::BLACK,
+                },
+                PieceColor::BLACK => Player {
+                    label: PieceColor::WHITE,
+                },
+            },
+            move_count: game_state.move_count + 1,
+        }
     }
 
     let app = axum::Router::new()
