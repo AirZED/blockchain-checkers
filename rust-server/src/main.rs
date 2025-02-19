@@ -122,7 +122,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 socket.join([room_id.to_owned()]);
 
                                 let game_state = room.game_state.clone();
-                                // drop(rooms); // Release the lock before the async operations
+                                // drop(rooms);
 
                                 socket
                                     .emit(
@@ -160,8 +160,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             socket.on(
                 "move",
                 move |socket: SocketRef, Data::<MovementSocket>(data)| {
-                    match rooms_move.lock().unwrap().get_mut(&data.room_id) {
-                        Some(room) => {}
+                    let room_id = data.room_id.clone();
+
+                    match rooms_move.lock().unwrap().get_mut(&room_id) {
+                        Some(room) => {
+                            let new_state = process_move(&mut room.game_state, &data.movement);
+
+                            room.game_state = new_state;
+
+                            drop(rooms);
+                            // broadcast the moe to all players in the room
+                            tokio::spawn(async move {
+                                socket
+                                    .to(room_id)
+                                    .emit(
+                                        "moveMade",
+                                        &serde_json::json!({
+                                            "gameState": room.game_state,
+                                            "move": data.movement.clone()
+                                        }),
+                                    )
+                                    .await
+                                    .ok();
+                            });
+                        }
 
                         None => {
                             socket.emit("error", "Room not found").ok();
@@ -216,11 +238,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     fn generate_room_id() -> String {
-        let mut rng = rand::rng();
+        let mut rng = rand::thread_rng();
         const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         (0..6)
             .map(|_| {
-                let idx = rng.random_range(0..CHARSET.len());
+                let idx = rng.gen_range(0..CHARSET.len());
                 CHARSET[idx] as char
             })
             .collect()
