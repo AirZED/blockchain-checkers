@@ -52,6 +52,7 @@ pub struct MakeTouranament<'info> {
 impl<'info> MakeTouranament<'info> {
     pub fn make_tournament(
         &mut self,
+        seed: u64,
         total_price: u64,
         platform_fee: u64,
         max_players: u8,
@@ -63,7 +64,7 @@ impl<'info> MakeTouranament<'info> {
         );
 
         self.tournament.set_inner(Tournament {
-            seeds: 0,
+            seed,
             host: self.host.key(),
             players: Vec::new(),
             max_players,

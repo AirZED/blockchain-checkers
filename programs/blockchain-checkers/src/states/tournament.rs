@@ -6,7 +6,7 @@ use crate::errors::TournamentError;
 #[derive(InitSpace)]
 
 pub struct Tournament {
-    pub seeds: u64,
+    pub seed: u64,
     pub host: Pubkey,
     #[max_len(100)]
     pub players: Vec<Pubkey>,

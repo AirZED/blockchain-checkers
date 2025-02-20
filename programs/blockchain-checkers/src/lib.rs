@@ -23,7 +23,7 @@ pub mod blockchain_checkers {
         max_players: u8,
     ) -> Result<()> {
         let tournament = ctx.accounts;
-        tournament.make_tournament(total_price, platform_fee, max_players, &ctx.bumps)?;
+        tournament.make_tournament(seeds, total_price, platform_fee, max_players, &ctx.bumps)?;
         tournament.fund_tournament(total_price)?;
         Ok(())
     }
