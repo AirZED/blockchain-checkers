@@ -73,7 +73,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (layer, io) = SocketIo::new_layer();
     let rooms = Arc::new(Mutex::new(HashMap::<String, GameRoom>::new()));
 
-    io.ns("/", {
+
+    io.clone().ns("/", {
         let rooms = Arc::clone(&rooms);
 
         move |socket: SocketRef| {
@@ -95,7 +96,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     },
                 );
 
-                socket.join(room_id.to_owned());
+                socket.join([room_id.to_owned()]);
                 socket
                     .emit(
                         "roomCreated",
@@ -119,24 +120,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             }
                             None => {
                                 room.players.black = Some(socket.id.to_string());
-                                socket.join([room_id.to_owned()]);
+                                socket.join(room_id.to_owned());
 
                                 let game_state = room.game_state.clone();
-                                // drop(rooms);
+                                // drop(rooms_join);
 
                                 socket
                                     .emit(
                                         "gameJoined",
                                         &serde_json::json!({
                                             "roomId": room_id,
-                                            "playerColor": PieceColor::WHITE,
+                                            "playerColor": PieceColor::BLACK,
                                             "gameState": game_state
                                         }),
                                     )
                                     .ok();
 
                                 tokio::spawn(async move {
-                                    socket
+                                    io.clone()
                                         .to(room_id)
                                         .emit(
                                             "gameStart",
@@ -162,33 +163,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 move |socket: SocketRef, Data::<MovementSocket>(data)| {
                     let room_id = data.room_id.clone();
 
-                    match rooms_move.lock().unwrap().get_mut(&room_id) {
-                        Some(room) => {
-                            let new_state = process_move(&mut room.game_state, &data.movement);
+                    let mut rooms_lock = rooms_move.lock().unwrap();
+                    if let Some(room) = rooms_lock.get_mut(&room_id) {
+                        let new_state = process_move(&mut room.game_state, &data.movement);
+                        room.game_state = new_state.clone();
+                        drop(rooms_lock);
 
-                            room.game_state = new_state;
-
-                            drop(rooms);
-                            // broadcast the moe to all players in the room
-                            tokio::spawn(async move {
-                                socket
-                                    .to(room_id)
-                                    .emit(
-                                        "moveMade",
-                                        &serde_json::json!({
-                                            "gameState": room.game_state,
-                                            "move": data.movement.clone()
-                                        }),
-                                    )
-                                    .await
-                                    .ok();
-                            });
-                        }
-
-                        None => {
-                            socket.emit("error", "Room not found").ok();
-                        }
-                    };
+                        // broadcast the move to all players in the room
+                        tokio::spawn(async move {
+                            socket
+                                .to(room_id)
+                                .emit(
+                                    "moveMade",
+                                    &serde_json::json!({
+                                        "gameState": new_state,
+                                        "move": data.movement
+                                    }),
+                                )
+                                .await
+                                .ok();
+                        });
+                    } else {
+                        drop(rooms_lock);
+                        socket.emit("error", "Room not found").ok();
+                    }
                 },
             );
 
@@ -238,11 +236,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     fn generate_room_id() -> String {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
         const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         (0..6)
             .map(|_| {
-                let idx = rng.gen_range(0..CHARSET.len());
+                let idx = rng.random_range(0..CHARSET.len());
                 CHARSET[idx] as char
             })
             .collect()

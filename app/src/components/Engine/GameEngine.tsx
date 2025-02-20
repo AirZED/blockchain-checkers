@@ -72,6 +72,7 @@ const GameEngine = (): ReactElement => {
     });
 
     socket.on("moveMade", ({ gameState, move }) => {
+      console.log("Move made:", move);
       setState(gameState);
       // Optional: Add move animation or highlighting
     });
