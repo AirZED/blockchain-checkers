@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token::TransferChecked,
+    token::{transfer_checked, TransferChecked},
     token_interface::{Mint, TokenAccount, TokenInterface},
 };
 
@@ -77,12 +77,18 @@ impl<'info> MakeTouranament<'info> {
     }
 
     pub fn fund_tournament(&mut self, amount: u64) -> Result<()> {
+        let cpi_program = self.token_program.to_account_info();
+
         let cpi_accounts = TransferChecked {
             from: self.host.to_account_info(),
             to: self.tournament_vault.to_account_info(),
+            authority: self.host.to_account_info(),
+            mint: self.mint_a.to_account_info(),
         };
 
-        // let cpi_context =
+        let transfer_ctx = CpiContext::new(cpi_program, cpi_accounts);
+
+        transfer_checked(transfer_ctx, amount, self.mint_a.decimals)?;
 
         Ok(())
     }
