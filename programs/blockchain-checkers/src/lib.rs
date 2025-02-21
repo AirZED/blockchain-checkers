@@ -1,13 +1,11 @@
 use anchor_lang::prelude::*;
 
+mod constants;
 mod errors;
 mod instructions;
 mod states;
 
 use instructions::*;
-use states::*;
-
-use errors::*;
 
 declare_id!("AxDTpDD8WSX667JZzh9XM6HYc5WWrAcuE4yUia4pwUUe");
 
@@ -27,4 +25,22 @@ pub mod blockchain_checkers {
         tournament.fund_tournament(total_price)?;
         Ok(())
     }
+
+    // pub fn join_tournament(ctx: Context<JoinTournament>) -> Result<()> {
+    //     let tournament = ctx.accounts;
+    //     tournament.join_tournament()
+    // }
+
+    // pub fn start_tournament(ctx: Context<StartTournament>) -> Result<()> {
+    //     let tournament = ctx.accounts;
+    //     tournament.start_tournament()
+    // }
+
+    // pub fn end_tournament(ctx: Context<EndTournament>) -> Result<()> {
+    //     let tournament = ctx.accounts;
+    //     tournament.end_tournament()
+    // }
+
+    // pub fn claim_rewards(ctx: Context<ClaimRewards>) -> Result<()> {
+    // }
 }

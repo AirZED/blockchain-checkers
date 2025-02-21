@@ -11,9 +11,21 @@ pub enum TournamentError {
     #[msg("Not a winner")]
     NotAWinner,
 
-    #[msg("Prize already claimed")]
-    PrizeAlreadyClaimed,
+    #[msg("Player has already claimed rewards")]
+    AlreadyClaimed,
 
-    #[msg("Invalid player count")]
+    #[msg("Only the tournament host can perform this action")]
+    NotTournamentHost,
+
+    #[msg("Invalid player count - must be even and greater than zero")]
     InvalidPlayerCount,
+
+    #[msg("Tournament has already started")]
+    TournamentAlreadyStarted,
+
+    #[msg("Tournament has not started yet")]
+    TournamentNotStarted,
+
+    #[msg("Player is not in the tournament")]
+    PlayerNotInTournament,
 }

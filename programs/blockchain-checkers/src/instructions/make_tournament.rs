@@ -67,11 +67,14 @@ impl<'info> MakeTouranament<'info> {
             seed,
             host: self.host.key(),
             players: Vec::new(),
+            teams: Vec::new(),
             max_players,
             total_price,
             bump: bump.tournament,
             platform_fee,
             winners: Vec::new(),
+            started: false,
+            claimed_rewards: Vec::new(),
         });
 
         Ok(())
@@ -94,10 +97,5 @@ impl<'info> MakeTouranament<'info> {
         Ok(())
     }
 
-    pub fn join_tournament(&mut self) -> Result<()> {
-        if self.tournament.players.len() < self.tournament.max_players as usize {
-            self.tournament.players.push(self.host.key());
-        }
-        Ok(())
-    }
+  
 }
