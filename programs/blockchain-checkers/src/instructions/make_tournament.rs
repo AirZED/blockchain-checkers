@@ -14,14 +14,11 @@ pub struct MakeTouranament<'info> {
     pub host: Signer<'info>,
 
     #[account(mint::token_program =token_program )]
-    pub mint_a: InterfaceAccount<'info, Mint>,
-
-    #[account(mint::token_program =token_program )]
-    pub mint_b: InterfaceAccount<'info, Mint>,
+    pub mint: InterfaceAccount<'info, Mint>,
 
     #[account(
         mut,
-        associated_token::mint = mint_a,
+        associated_token::mint = mint,
         associated_token::authority = host,
         associated_token::token_program = token_program
     )]
@@ -39,7 +36,7 @@ pub struct MakeTouranament<'info> {
     #[account(
         init,
         payer = host,
-        associated_token::mint = mint_a,
+        associated_token::mint = mint,
         associated_token::authority = tournament,
         associated_token::token_program = token_program
     )]
@@ -87,12 +84,12 @@ impl<'info> MakeTouranament<'info> {
             from: self.host.to_account_info(),
             to: self.tournament_vault.to_account_info(),
             authority: self.host.to_account_info(),
-            mint: self.mint_a.to_account_info(),
+            mint: self.mint.to_account_info(),
         };
 
         let transfer_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
-        transfer_checked(transfer_ctx, amount, self.mint_a.decimals)?;
+        transfer_checked(transfer_ctx, amount, self.mint.decimals)?;
 
         Ok(())
     }

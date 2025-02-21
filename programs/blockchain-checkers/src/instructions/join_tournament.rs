@@ -7,21 +7,31 @@ use anchor_spl::{
 use crate::states::Tournament;
 
 #[derive(Accounts)]
+#[instruction(seed:u64)]
 struct JoinTournament<'info> {
-    #[account(mut)]
-    pub host: Signer<'info>,
-
     #[account(mut)]
     pub player: Signer<'info>,
 
-    pub mint_a: InterfaceAccount<'info, Mint>,
+    #[account(mut)]
+    pub host: Signer<'info>,
 
-    pub mint_b: InterfaceAccount<'info, Mint>,
+    pub mint: InterfaceAccount<'info, Mint>,
 
-    pub host_ata_a: InterfaceAccount<'info, TokenAccount>,
-
+    #[account(
+        init,
+        payer = host,
+        associated_token::mint = mint,
+        associated_token::authority = player,
+    )]
     pub player_ata_a: InterfaceAccount<'info, TokenAccount>,
 
+    #[account(
+        mut,
+        close= host,
+        has_one = host,
+        seeds = [b"tournament", host.key().as_ref(), seed.to_le_bytes().as_ref()],
+        bump = tournament.bump,
+    )]
     pub tournament: Account<'info, Tournament>,
 
     pub system_program: Program<'info, System>,
