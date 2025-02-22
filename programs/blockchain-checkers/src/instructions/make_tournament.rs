@@ -72,6 +72,7 @@ impl<'info> MakeTouranament<'info> {
             winners: Vec::new(),
             started: false,
             claimed_rewards: Vec::new(),
+            mint: self.mint.key(),
         });
 
         Ok(())
@@ -93,6 +94,4 @@ impl<'info> MakeTouranament<'info> {
 
         Ok(())
     }
-
-  
 }
