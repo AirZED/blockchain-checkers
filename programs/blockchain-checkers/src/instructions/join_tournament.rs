@@ -3,8 +3,12 @@ use anchor_spl::{
     associated_token::AssociatedToken,
     token_interface::{Mint, TokenAccount, TokenInterface},
 };
+use rand::{seq::SliceRandom, Rng};
 
-use crate::{errors::TournamentError, states::Tournament};
+use crate::{
+    errors::TournamentError,
+    states::{Team, Tournament},
+};
 
 #[derive(Accounts)]
 #[instruction(seed: u64)]
@@ -54,9 +58,7 @@ impl<'info> JoinTournament<'info> {
         Ok(())
     }
     pub fn match_players(&mut self) -> Result<()> {
-        // let mut players = self.tournament.players.clone();
-        // players.shuffle(&mut rand::thread_rng());
-
+        self.tournament.shuffle_players();
         Ok(())
     }
 }

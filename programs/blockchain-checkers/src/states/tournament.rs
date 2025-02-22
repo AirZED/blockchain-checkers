@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use rand::{seq::SliceRandom, Rng};
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace)]
 pub struct Team {
@@ -48,5 +49,28 @@ impl Tournament {
 
     pub fn has_player(&self, player: &Pubkey) -> bool {
         self.players.contains(player)
+    }
+
+    pub fn shuffle_players(&mut self) {
+        if self.players.len() == self.max_players as usize {
+            let mut players = self.players.clone();
+
+            let mut rng = rand::rng();
+
+            for i in (1..players.len()).rev() {
+                let j = rng.random_range(0..=1);
+                players.swap(i, j);
+            }
+
+            // create players teams
+            for chunk in players.chunks(2) {
+                if let [player1, player2] = chunk {
+                    self.teams.push(Team {
+                        player1: *player1,
+                        player2: *player2,
+                    });
+                }
+            }
+        }
     }
 }
