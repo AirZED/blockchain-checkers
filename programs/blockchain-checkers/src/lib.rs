@@ -26,15 +26,15 @@ pub mod blockchain_checkers {
         Ok(())
     }
 
-    // pub fn join_tournament(ctx: Context<JoinTournament>) -> Result<()> {
-    //     let tournament = ctx.accounts;
-    //     tournament.join_tournament()
-    // }
+    pub fn join_tournament(ctx: Context<JoinTournament>) -> Result<()> {
+        let tournament = ctx.accounts;
+        tournament.join_tournament()
+    }
 
-    // pub fn start_tournament(ctx: Context<StartTournament>) -> Result<()> {
-    //     let tournament = ctx.accounts;
-    //     tournament.start_tournament()
-    // }
+    pub fn match_players(ctx: Context<JoinTournament>) -> Result<()> {
+        let tournament = ctx.accounts;
+        tournament.match_players()
+    }
 
     // pub fn end_tournament(ctx: Context<EndTournament>) -> Result<()> {
     //     let tournament = ctx.accounts;

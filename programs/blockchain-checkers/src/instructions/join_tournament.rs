@@ -3,12 +3,8 @@ use anchor_spl::{
     associated_token::AssociatedToken,
     token_interface::{Mint, TokenAccount, TokenInterface},
 };
-use rand::{seq::SliceRandom, Rng};
 
-use crate::{
-    errors::TournamentError,
-    states::{Team, Tournament},
-};
+use crate::{errors::TournamentError, states::Tournament};
 
 #[derive(Accounts)]
 #[instruction(seed: u64)]
