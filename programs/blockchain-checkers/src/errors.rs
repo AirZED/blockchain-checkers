@@ -37,4 +37,7 @@ pub enum TournamentError {
 
     #[msg("Players are not in the same team")]
     PlayersNotInSameTeam,
+
+    #[msg("Not a tournament winner")]
+    NotATournamentWinner,
 }
