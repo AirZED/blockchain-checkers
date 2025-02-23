@@ -5,7 +5,7 @@ use anchor_spl::{
     token_interface::{Mint, TokenAccount, TokenInterface},
 };
 
-use crate::{errors::TournamentError, states::Tournament};
+use crate::{errors::TournamentError, states::{Tournament, TournamentState}};
 
 #[derive(Accounts)]
 #[instruction(seed:u64)]
@@ -70,7 +70,7 @@ impl<'info> MakeTouranament<'info> {
             bump: bump.tournament,
             platform_fee,
             winners: Vec::new(),
-            started: false,
+            current_state: TournamentState::Created,
             claimed_rewards: Vec::new(),
             mint: self.mint.key(),
         });

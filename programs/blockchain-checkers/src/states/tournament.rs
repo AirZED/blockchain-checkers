@@ -7,6 +7,14 @@ pub struct Team {
     pub player2: Pubkey,
 }
 
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, PartialEq)]
+pub enum TournamentState {
+    Created,
+    Shuffled,
+    Started,
+    Ended,
+}
+
 #[account]
 #[derive(InitSpace)]
 pub struct Tournament {
@@ -19,7 +27,7 @@ pub struct Tournament {
     pub max_players: u8,
     pub bump: u8,
     // pub vault_bump: u8,
-    pub started: bool,
+    pub current_state: TournamentState,
     pub total_price: u64,
     pub platform_fee: u64,
 
@@ -72,5 +80,7 @@ impl Tournament {
                 }
             }
         }
+
+        self.current_state = TournamentState::Shuffled;
     }
 }

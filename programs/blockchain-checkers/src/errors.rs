@@ -28,4 +28,7 @@ pub enum TournamentError {
 
     #[msg("Player is not in the tournament")]
     PlayerNotInTournament,
+
+    #[msg("Tournament not shuffled, and players are not grouped")]
+    TournamentNotShuffled,
 }

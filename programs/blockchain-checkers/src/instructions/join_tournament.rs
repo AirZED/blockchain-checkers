@@ -4,7 +4,10 @@ use anchor_spl::{
     token_interface::{Mint, TokenAccount, TokenInterface},
 };
 
-use crate::{errors::TournamentError, states::Tournament};
+use crate::{
+    errors::TournamentError,
+    states::{Tournament, TournamentState},
+};
 
 #[derive(Accounts)]
 #[instruction(seed: u64)]
@@ -50,11 +53,13 @@ impl<'info> JoinTournament<'info> {
             self.tournament.players.len() >= self.tournament.max_players as usize,
             TournamentError::TournamentFull
         );
+
+        require!(
+            self.tournament.current_state != TournamentState::Started,
+            TournamentError::TournamentAlreadyStarted
+        );
+
         self.tournament.players.push(self.player.key());
-        Ok(())
-    }
-    pub fn match_players(&mut self) -> Result<()> {
-        self.tournament.shuffle_players();
         Ok(())
     }
 }
