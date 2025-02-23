@@ -1,3 +1,8 @@
 use anchor_lang::prelude::*;
 
-pub struct Game {}
+#[derive(AnchorSerialize, AnchorDeserialize)]
+pub struct GameResult {
+    pub winner: Pubkey,
+    pub loser: Pubkey,
+    pub team_index: u8,
+}

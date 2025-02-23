@@ -1,0 +1,41 @@
+Here's my analysis of the two approaches for submitting game results in the blockchain-checkers tournament:
+
+Winner submits result: 
+Pros:
+Direct player involvement
+Decentralized approach
+No need for backend key management
+
+Cons:
+Can be manipulated if winner lies
+Doesn't handle draws
+Other player has no say in the result
+Potential for disputes
+
+
+
+Game account submits result (current implementation): 
+
+Pros:
+Trusted neutral party submits results
+Can handle all game outcomes (wins, losses, draws)
+Server validates game state before submission
+Prevents player manipulation
+Single source of truth
+Can enforce game rules properly
+Can handle disconnections/timeouts
+
+Cons:
+Requires secure backend key management
+More centralized approach
+
+
+
+The game account approach (current implementation) is the better choice because:
+The server already has the full game state
+Can validate moves and outcomes
+Handles all edge cases
+Prevents cheating
+Provides definitive results
+Matches the existing socket-based game architecture
+The server-side validation with a dedicated game account provides the most reliable and cheat-proof way to submit tournament results to the blockchain.

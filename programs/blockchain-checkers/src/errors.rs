@@ -31,4 +31,10 @@ pub enum TournamentError {
 
     #[msg("Tournament not shuffled, and players are not grouped")]
     TournamentNotShuffled,
+
+    #[msg("Tournament does not exist")]
+    InvalidTournament,
+
+    #[msg("Players are not in the same team")]
+    PlayersNotInSameTeam,
 }

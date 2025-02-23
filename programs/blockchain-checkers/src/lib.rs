@@ -6,11 +6,14 @@ mod instructions;
 mod states;
 
 use instructions::*;
+use states::*;
 
 declare_id!("AxDTpDD8WSX667JZzh9XM6HYc5WWrAcuE4yUia4pwUUe");
 
 #[program]
 pub mod blockchain_checkers {
+    use crate::states::{game, GameResult};
+
     use super::*;
 
     pub fn initialize_tournament(
@@ -50,6 +53,16 @@ pub mod blockchain_checkers {
     pub fn end_tournament(ctx: Context<StartTournament>) -> Result<()> {
         let tournament = ctx.accounts;
         tournament.end_tournament()
+    }
+
+    pub fn submit_game_result(
+        ctx: Context<SubmitGameResult>,
+        game_result: GameResult,
+    ) -> Result<()> {
+        let tournament = ctx.accounts;
+        tournament.submit_game_result(game_result)?;
+
+        Ok(())
     }
 
     // pub fn claim_rewards(ctx: Context<ClaimRewards>) -> Result<()> {
