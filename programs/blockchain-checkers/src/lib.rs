@@ -12,7 +12,6 @@ declare_id!("AxDTpDD8WSX667JZzh9XM6HYc5WWrAcuE4yUia4pwUUe");
 
 #[program]
 pub mod blockchain_checkers {
-    use crate::states::{game, GameResult};
 
     use super::*;
 

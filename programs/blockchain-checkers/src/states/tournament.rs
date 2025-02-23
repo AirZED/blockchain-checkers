@@ -1,5 +1,4 @@
 use anchor_lang::prelude::*;
-use rand::{seq::SliceRandom, Rng};
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace)]
 pub struct Team {
@@ -63,14 +62,17 @@ impl Tournament {
         if self.players.len() == self.max_players as usize {
             let mut players = self.players.clone();
 
-            let mut rng = rand::rng();
+            // Use tournament seed for deterministic shuffling
+            let mut index = self.seed;
 
             for i in (1..players.len()).rev() {
-                let j = rng.random_range(0..=1);
+                // Generate next pseudo-random index using the seed
+                index = index.wrapping_mul(1103515245).wrapping_add(12345);
+                let j = (index % (i as u64 + 1)) as usize;
                 players.swap(i, j);
             }
 
-            // create players teams
+            // Create teams from shuffled players
             for chunk in players.chunks(2) {
                 if let [player1, player2] = chunk {
                     self.teams.push(Team {
@@ -79,8 +81,8 @@ impl Tournament {
                     });
                 }
             }
-        }
 
-        self.current_state = TournamentState::Shuffled;
+            self.current_state = TournamentState::Shuffled;
+        }
     }
 }
