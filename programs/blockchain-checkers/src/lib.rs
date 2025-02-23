@@ -65,6 +65,11 @@ pub mod blockchain_checkers {
         Ok(())
     }
 
-    // pub fn claim_rewards(ctx: Context<ClaimRewards>) -> Result<()> {
-    // }
+    pub fn claim_rewards(ctx: Context<ClaimRewards>) -> Result<()> {
+        let tournament = ctx.accounts;
+
+        tournament._claim_rewards()?;
+
+        Ok(())
+    }
 }

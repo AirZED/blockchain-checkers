@@ -1,1 +1,1 @@
-pub const ESCROW_SEED: &[u8] = b"escrow";
+pub const TOURNAMENT_SEED: &[u8] = b"tournament";
