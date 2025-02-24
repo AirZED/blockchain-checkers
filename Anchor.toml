@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-blockchain_checkers = "AxDTpDD8WSX667JZzh9XM6HYc5WWrAcuE4yUia4pwUUe"
+blockchain_checkers = "J5zCTZCbJieJ1Wf88ZxACMZyEkVvYpxXQ6nCMULGmLGy"
 
 [registry]
 url = "https://api.apr.dev"

@@ -8,7 +8,7 @@ mod states;
 use instructions::*;
 use states::*;
 
-declare_id!("AxDTpDD8WSX667JZzh9XM6HYc5WWrAcuE4yUia4pwUUe");
+declare_id!("J5zCTZCbJieJ1Wf88ZxACMZyEkVvYpxXQ6nCMULGmLGy");
 
 #[program]
 pub mod blockchain_checkers {
