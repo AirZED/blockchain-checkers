@@ -10,14 +10,13 @@ use crate::{
 };
 
 #[derive(Accounts)]
-#[instruction(seed: u64)]
 pub struct StartTournament<'info> {
     #[account(mut)]
     pub host: Signer<'info>,
 
     #[account(
         mut,
-        seeds = [b"tournament", tournament.host.as_ref(), seed.to_le_bytes().as_ref()],
+        seeds = [b"tournament", tournament.host.as_ref(), tournament.seed.to_le_bytes().as_ref()],
         bump = tournament.bump,
     )]
     pub tournament: Account<'info, Tournament>,

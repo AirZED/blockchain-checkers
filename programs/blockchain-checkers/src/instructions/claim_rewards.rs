@@ -23,6 +23,7 @@ pub struct ClaimRewards<'info> {
         mut,
         seeds = [b"tournament", tournament.host.as_ref(), seed.to_le_bytes().as_ref()],
         bump = tournament.bump,
+        close= host,
         constraint = tournament.current_state == TournamentState::Started || tournament.current_state == TournamentState::Ended @ TournamentError::TournamentNotStarted,
         constraint = tournament.is_winner(&player.key()) @ TournamentError::NotATournamentWinner,
         constraint = !tournament.has_claimed(&player.key()) @ TournamentError::AlreadyClaimed,
@@ -51,6 +52,7 @@ pub struct ClaimRewards<'info> {
         mut,
         associated_token::mint = mint,
         associated_token::authority = tournament,
+        
     )]
     pub tournament_vault: InterfaceAccount<'info, TokenAccount>,
 
@@ -110,10 +112,10 @@ impl<'info> ClaimRewards<'info> {
 
         transfer_checked(transfer_ctx, reward_amount, decimals)?;
 
+
+        // closes the accout as well with it is done
         Ok(())
     }
 
-    pub fn close_tournament_vault(&mut self) -> Result<()> {
-        Ok(())
-    }
+   
 }

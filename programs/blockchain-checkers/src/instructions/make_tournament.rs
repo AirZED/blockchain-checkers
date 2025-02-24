@@ -5,7 +5,10 @@ use anchor_spl::{
     token_interface::{Mint, TokenAccount, TokenInterface},
 };
 
-use crate::{errors::TournamentError, states::{Tournament, TournamentState}};
+use crate::{
+    errors::TournamentError,
+    states::{Tournament, TournamentState},
+};
 
 #[derive(Accounts)]
 #[instruction(seed:u64)]
