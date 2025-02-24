@@ -1,4 +1,4 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*, solana_program::stake::instruction};
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace)]
 pub struct Team {
@@ -21,9 +21,10 @@ pub struct Tournament {
     pub host: Pubkey,
     pub mint: Pubkey, // Token mint for rewards
 
+    pub max_players: u8,
+
     #[max_len(16)]
     pub players: Vec<Pubkey>,
-    pub max_players: u8,
     pub bump: u8,
     // pub vault_bump: u8,
     pub current_state: TournamentState,

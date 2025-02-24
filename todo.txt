@@ -3,3 +3,5 @@
 2. Ensure with more than one capture a reguler piece can capture to the Back 
 
 3. Write the we socket to enable two players play
+
+4. Implement create tournament screen and functionality

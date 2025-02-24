@@ -7,3 +7,6 @@ test-ledger
 .yarn
 
 sandbox
+
+dev-wallet.json
+./dev-wallet.json
