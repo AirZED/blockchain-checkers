@@ -22,19 +22,11 @@ pub struct SubmitGameResult<'info> {
     )]
     pub tournament: Account<'info, Tournament>,
 
-    pub mint: InterfaceAccount<'info, Mint>,
-
     // For tournament vault access if needed
-    #[account(
-       mut,
-       associated_token::mint = mint,
-       associated_token::authority = tournament,
-    )]
-    pub tournament_vault: InterfaceAccount<'info, TokenAccount>,
+    #[account(seeds=[b"tournament_vault", tournament.key().as_ref()], bump)]
+    pub tournament_vault: SystemAccount<'info>,
 
     pub system_program: Program<'info, System>,
-    pub token_program: Interface<'info, TokenInterface>,
-    pub associated_token_program: Program<'info, AssociatedToken>,
 }
 
 impl<'info> SubmitGameResult<'info> {
