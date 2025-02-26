@@ -1,9 +1,10 @@
-use anchor_lang::prelude::*;
-use anchor_spl::{
-    associated_token::AssociatedToken,
-    token::{transfer_checked, TransferChecked},
-    token_interface::{Mint, TokenAccount, TokenInterface},
+use anchor_lang::{
+    prelude::*,
+    system_program::{transfer, Transfer},
 };
+// use anchor_spl::{
+//     token_interface::{TokenAccount, TokenInterface},
+// };
 
 use crate::{
     errors::TournamentError,
@@ -16,17 +17,6 @@ pub struct MakeTouranament<'info> {
     #[account(mut)]
     pub host: Signer<'info>,
 
-    #[account(mint::token_program =token_program )]
-    pub mint: InterfaceAccount<'info, Mint>,
-
-    #[account(
-        mut,
-        associated_token::mint = mint,
-        associated_token::authority = host,
-        associated_token::token_program = token_program
-    )]
-    pub maker_ata_a: InterfaceAccount<'info, TokenAccount>,
-
     #[account(
         init,
         payer = host,
@@ -37,16 +27,12 @@ pub struct MakeTouranament<'info> {
     pub tournament: Account<'info, Tournament>,
 
     #[account(
-        init,
-        payer = host,
-        associated_token::mint = mint,
-        associated_token::authority = tournament,
-        associated_token::token_program = token_program
+        mut,
+        seeds = [b"vault", tournament.key().as_ref()],
+        bump
     )]
-    pub tournament_vault: InterfaceAccount<'info, TokenAccount>,
+    pub tournament_vault: SystemAccount<'info>,
     pub system_program: Program<'info, System>,
-    pub token_program: Interface<'info, TokenInterface>,
-    pub associated_token_program: Program<'info, AssociatedToken>,
 }
 
 impl<'info> MakeTouranament<'info> {
@@ -75,25 +61,22 @@ impl<'info> MakeTouranament<'info> {
             winners: Vec::new(),
             current_state: TournamentState::Created,
             claimed_rewards: Vec::new(),
-            mint: self.mint.key(),
         });
 
         Ok(())
     }
 
     pub fn fund_tournament(&mut self, amount: u64) -> Result<()> {
-        let cpi_program = self.token_program.to_account_info();
+        let cpi_program = self.system_program.to_account_info();
 
-        let cpi_accounts = TransferChecked {
+        let cpi_accounts = Transfer {
             from: self.host.to_account_info(),
             to: self.tournament_vault.to_account_info(),
-            authority: self.host.to_account_info(),
-            mint: self.mint.to_account_info(),
         };
 
         let transfer_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
-        transfer_checked(transfer_ctx, amount, self.mint.decimals)?;
+        transfer(transfer_ctx, amount)?;
 
         Ok(())
     }

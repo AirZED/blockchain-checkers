@@ -11,8 +11,14 @@ blockchain_checkers = "J5zCTZCbJieJ1Wf88ZxACMZyEkVvYpxXQ6nCMULGmLGy"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "devnet"
-wallet = "./dev-wallet.json"
+# cluster = "devnet"
+ cluster = "localnet"
+
+#cluster = "http://127.0.0.1:8898"
+
+
+# wallet = "./dev-wallet.json"
+wallet = "~/home/mfoniso/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"

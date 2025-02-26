@@ -19,7 +19,6 @@ pub enum TournamentState {
 pub struct Tournament {
     pub seed: u64,
     pub host: Pubkey,
-    pub mint: Pubkey, // Token mint for rewards
 
     pub max_players: u8,
 

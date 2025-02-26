@@ -10,3 +10,5 @@ sandbox
 
 dev-wallet.json
 ./dev-wallet.json
+
+test.ts
