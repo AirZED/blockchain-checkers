@@ -14,7 +14,7 @@ pub struct JoinTournament<'info> {
     #[account(
         mut,
         seeds = [b"tournament", tournament.host.as_ref(), seed.to_le_bytes().as_ref()],
-        bump = tournament.bump,
+        bump = tournament.tournament_bump,
         constraint = !tournament.is_full() @ TournamentError::TournamentFull,
         constraint = !tournament.has_player(&player.key()) @ TournamentError::AlreadyJoined,
     )]

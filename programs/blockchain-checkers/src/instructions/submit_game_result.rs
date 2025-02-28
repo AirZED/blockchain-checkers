@@ -1,8 +1,4 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{
-    associated_token::AssociatedToken,
-    token_interface::{Mint, TokenAccount, TokenInterface},
-};
 
 use crate::{
     errors::TournamentError,
@@ -17,7 +13,7 @@ pub struct SubmitGameResult<'info> {
     #[account(
         mut,
         seeds = [b"tournament", tournament.host.as_ref(), tournament.seed.to_le_bytes().as_ref()],
-        bump = tournament.bump,
+        bump = tournament.tournament_bump,
         constraint = tournament.current_state == TournamentState::Started @ TournamentError::TournamentNotStarted,
     )]
     pub tournament: Account<'info, Tournament>,

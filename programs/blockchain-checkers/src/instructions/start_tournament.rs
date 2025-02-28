@@ -13,7 +13,7 @@ pub struct StartTournament<'info> {
     #[account(
         mut,
         seeds = [b"tournament", tournament.host.as_ref(), tournament.seed.to_le_bytes().as_ref()],
-        bump = tournament.bump,
+        bump = tournament.tournament_bump,
     )]
     pub tournament: Account<'info, Tournament>,
 

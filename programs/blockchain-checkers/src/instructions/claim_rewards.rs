@@ -20,7 +20,7 @@ pub struct ClaimRewards<'info> {
     #[account(
         mut,
         seeds = [b"tournament", tournament.host.as_ref(), seed.to_le_bytes().as_ref()],
-        bump = tournament.bump,
+        bump = tournament.tournament_bump,
         close= host,
         constraint = tournament.current_state == TournamentState::Started || tournament.current_state == TournamentState::Ended @ TournamentError::TournamentNotStarted,
         constraint = tournament.is_winner(&player.key()) @ TournamentError::NotATournamentWinner,
@@ -50,7 +50,7 @@ impl<'info> ClaimRewards<'info> {
         let seeds = [
             TOURNAMENT_SEED,
             self.tournament.to_account_info().key.as_ref(),
-            &[self.tournament.bump],
+            &[self.tournament.tournament_bump],
         ];
 
         let signer_seeds = &[&seeds[..]];

@@ -2,9 +2,6 @@ use anchor_lang::{
     prelude::*,
     system_program::{transfer, Transfer},
 };
-// use anchor_spl::{
-//     token_interface::{TokenAccount, TokenInterface},
-// };
 
 use crate::{
     errors::TournamentError,
@@ -27,8 +24,7 @@ pub struct MakeTouranament<'info> {
     pub tournament: Account<'info, Tournament>,
 
     #[account(
-        mut,
-        seeds = [b"vault", tournament.key().as_ref()],
+        seeds = [b"tournament_vault", tournament.key().as_ref()],
         bump
     )]
     pub tournament_vault: SystemAccount<'info>,
@@ -42,7 +38,7 @@ impl<'info> MakeTouranament<'info> {
         total_price: u64,
         platform_fee: u64,
         max_players: u8,
-        bump: &MakeTouranamentBumps,
+        bumps: &MakeTouranamentBumps,
     ) -> Result<()> {
         require!(
             max_players % 2 == 0 && max_players > 0,
@@ -56,27 +52,13 @@ impl<'info> MakeTouranament<'info> {
             teams: Vec::new(),
             max_players,
             total_price,
-            bump: bump.tournament,
+            tournament_bump: bumps.tournament,
+            tournament_vault_bump: bumps.tournament_vault,
             platform_fee,
             winners: Vec::new(),
             current_state: TournamentState::Created,
             claimed_rewards: Vec::new(),
         });
-
-        Ok(())
-    }
-
-    pub fn fund_tournament(&mut self, amount: u64) -> Result<()> {
-        let cpi_program = self.system_program.to_account_info();
-
-        let cpi_accounts = Transfer {
-            from: self.host.to_account_info(),
-            to: self.tournament_vault.to_account_info(),
-        };
-
-        let transfer_ctx = CpiContext::new(cpi_program, cpi_accounts);
-
-        transfer(transfer_ctx, amount)?;
 
         Ok(())
     }
