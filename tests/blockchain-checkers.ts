@@ -75,18 +75,12 @@ describe("blockchain-checkers", () => {
 
   it("Should initialize a tournament", async () => {
     try {
-      const t1 = await airdrop(
-        provider.connection,
-        host.publicKey,
-        4000000000
-      );
+      const t1 = await airdrop(provider.connection, host.publicKey, 4);
       console.log("✅ Host Account funded: ", t1);
 
       const tx = await program.methods
         .initializeTournament(
           seed,
-          new BN(2000), // total prize
-          new BN(200), // platform fee
           4 // max players
         )
         .accountsPartial({
@@ -112,8 +106,7 @@ describe("blockchain-checkers", () => {
       );
 
       expect(tournamentAccount.maxPlayers).to.equal(4);
-      expect(tournamentAccount.totalPrice.toString()).to.equal("20");
-      expect(tournamentAccount.platformFee.toString()).to.equal("0.01");
+      expect(tournamentAccount.totalPrice.toString()).to.equal("0");
       expect(tournamentAccount.currentState.created).to.not.be.undefined;
     } catch (error) {
       console.error("error", error);

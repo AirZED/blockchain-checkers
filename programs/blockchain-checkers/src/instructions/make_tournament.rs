@@ -35,13 +35,11 @@ impl<'info> MakeTouranament<'info> {
     pub fn make_tournament(
         &mut self,
         seed: u64,
-        total_price: u64,
-        platform_fee: u64,
         max_players: u8,
         bumps: &MakeTouranamentBumps,
     ) -> Result<()> {
         require!(
-            max_players % 2 == 0 && max_players > 0,
+            max_players % 2 == 0 || max_players <= 0,
             TournamentError::InvalidPlayerCount
         );
 
@@ -51,10 +49,10 @@ impl<'info> MakeTouranament<'info> {
             players: Vec::new(),
             teams: Vec::new(),
             max_players,
-            total_price,
+            total_price: 0,
             tournament_bump: bumps.tournament,
             tournament_vault_bump: bumps.tournament_vault,
-            platform_fee,
+            platform_fee: 0,
             winners: Vec::new(),
             current_state: TournamentState::Created,
             claimed_rewards: Vec::new(),

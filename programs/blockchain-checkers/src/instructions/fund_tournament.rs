@@ -19,6 +19,7 @@ pub struct FundTouranament<'info> {
     pub tournament: Account<'info, Tournament>,
 
     #[account(
+        mut,
         seeds = [b"tournament_vault", tournament.key().as_ref()],
         bump = tournament.tournament_vault_bump,
     )]

@@ -18,12 +18,10 @@ pub mod blockchain_checkers {
     pub fn initialize_tournament(
         ctx: Context<MakeTouranament>,
         seeds: u64,
-        total_price: u64,
-        platform_fee: u64,
         max_players: u8,
     ) -> Result<()> {
         let tournament = ctx.accounts;
-        tournament.make_tournament(seeds, total_price, platform_fee, max_players, &ctx.bumps)?;
+        tournament.make_tournament(seeds, max_players, &ctx.bumps)?;
         Ok(())
     }
 
