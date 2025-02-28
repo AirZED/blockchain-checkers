@@ -3,10 +3,7 @@ use anchor_lang::{
     system_program::{transfer, Transfer},
 };
 
-use crate::{
-    errors::TournamentError,
-    states::{Tournament, TournamentState},
-};
+use crate::states::Tournament;
 
 #[derive(Accounts)]
 #[instruction(seed:u64)]
@@ -15,17 +12,15 @@ pub struct FundTouranament<'info> {
     pub host: Signer<'info>,
 
     #[account(
-        init,
-        payer = host,
-        space = 8 + Tournament::INIT_SPACE,
+        mut,
         seeds = [b"tournament", host.key().as_ref(), seed.to_le_bytes().as_ref()],
-        bump
+        bump= tournament.tournament_bump,
     )]
     pub tournament: Account<'info, Tournament>,
 
     #[account(
         seeds = [b"tournament_vault", tournament.key().as_ref()],
-        bump
+        bump = tournament.tournament_vault_bump,
     )]
     pub tournament_vault: SystemAccount<'info>,
     pub system_program: Program<'info, System>,
