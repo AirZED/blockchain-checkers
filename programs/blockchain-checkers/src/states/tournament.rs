@@ -9,7 +9,7 @@ pub struct Team {
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, PartialEq)]
 pub enum TournamentState {
     Created,
-    Deposited,
+    Funded,
     Shuffled,
     Started,
     Ended,

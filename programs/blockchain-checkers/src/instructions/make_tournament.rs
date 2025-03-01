@@ -14,6 +14,7 @@ pub struct MakeTouranament<'info> {
     #[account(mut)]
     pub host: Signer<'info>,
 
+    // I need a third parameter to make a single user able to create multiple tournaments
     #[account(
         init,
         payer = host,

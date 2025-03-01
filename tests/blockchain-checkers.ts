@@ -99,8 +99,6 @@ describe("blockchain-checkers", () => {
         tournamentPDA
       );
 
-      console.log("✅ Tournament Account: ", tournamentAccount);
-
       expect(tournamentAccount.host.toString()).to.equal(
         host.publicKey.toString()
       );
@@ -108,6 +106,42 @@ describe("blockchain-checkers", () => {
       expect(tournamentAccount.maxPlayers).to.equal(4);
       expect(tournamentAccount.totalPrice.toString()).to.equal("0");
       expect(tournamentAccount.currentState.created).to.not.be.undefined;
+    } catch (error) {
+      console.error("error", error);
+      throw error;
+    }
+  });
+
+  it("Fund the tournament", async () => {
+    try {
+      const t1 = await airdrop(provider.connection, host.publicKey, 10);
+      console.log("✅ Host Account funded: ", t1);
+
+      const tx = await program.methods
+        .fundTournament(new BN(8))
+        .accountsPartial({
+          host: host.publicKey,
+          tournament: tournamentPDA,
+          tournamentVault: tournamentVault,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([host])
+        .rpc();
+
+      console.log("Initialize Tournament TX:", tx);
+
+      // Verify tournament state
+      const tournamentAccount = await program.account.tournament.fetch(
+        tournamentPDA
+      );
+
+      expect(tournamentAccount.host.toString()).to.equal(
+        host.publicKey.toString()
+      );
+
+      expect(tournamentAccount.maxPlayers).to.equal(4);
+      expect(tournamentAccount.totalPrice.toString()).to.equal("8");
+      expect(tournamentAccount.currentState.funded).to.not.be.undefined;
     } catch (error) {
       console.error("error", error);
       throw error;

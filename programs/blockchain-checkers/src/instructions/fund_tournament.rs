@@ -3,7 +3,10 @@ use anchor_lang::{
     system_program::{transfer, Transfer},
 };
 
-use crate::states::Tournament;
+use crate::{
+    errors::TournamentError,
+    states::{Tournament, TournamentState},
+};
 
 #[derive(Accounts)]
 #[instruction(seed:u64)]
@@ -29,6 +32,20 @@ pub struct FundTouranament<'info> {
 
 impl<'info> FundTouranament<'info> {
     pub fn fund_tournament(&mut self, amount: u64) -> Result<()> {
+        require!(
+            self.tournament.current_state == TournamentState::Created,
+            TournamentError::TournamentAlreadyStarted
+        );
+
+        // update the state
+        self.tournament.current_state = TournamentState::Funded;
+        // take platform fee which would be 2% of the price pool
+        self.tournament.platform_fee = amount * 2 / 100;
+
+        let total_price = amount - self.tournament.platform_fee;
+        self.tournament.total_price = total_price;
+
+        // Transfer the amount to the tournament vault
         let cpi_program = self.system_program.to_account_info();
 
         let cpi_accounts = Transfer {
@@ -37,8 +54,7 @@ impl<'info> FundTouranament<'info> {
         };
 
         let transfer_ctx = CpiContext::new(cpi_program, cpi_accounts);
-
-        transfer(transfer_ctx, amount)?;
+        transfer(transfer_ctx, total_price)?;
 
         Ok(())
     }
