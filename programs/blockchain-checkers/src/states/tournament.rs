@@ -28,6 +28,8 @@ pub struct Tournament {
     pub tournament_bump: u8,
     pub tournament_vault_bump: u8,
 
+    pub game_account: Pubkey,
+
     // pub vault_bump: u8,
     pub current_state: TournamentState,
     pub total_price: u64,

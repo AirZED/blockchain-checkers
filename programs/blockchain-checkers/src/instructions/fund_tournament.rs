@@ -27,6 +27,11 @@ pub struct FundTouranament<'info> {
         bump = tournament.tournament_vault_bump,
     )]
     pub tournament_vault: SystemAccount<'info>,
+
+    /// CHECK: This is the account that will receive the platform fee
+    #[account(mut, address = tournament.game_account)]
+    pub game_account: UncheckedAccount<'info>,
+
     pub system_program: Program<'info, System>,
 }
 
@@ -39,22 +44,26 @@ impl<'info> FundTouranament<'info> {
 
         // update the state
         self.tournament.current_state = TournamentState::Funded;
-        // take platform fee which would be 2% of the price pool
         self.tournament.platform_fee = amount * 2 / 100;
 
         let total_price = amount - self.tournament.platform_fee;
         self.tournament.total_price = total_price;
 
-        // transfer to the account that collects the platform fee
-
-        // Transfer the amount to the tournament vault
         let cpi_program = self.system_program.to_account_info();
 
+        // transfer to the account that collects the platform fee
+        let cpi_accounts = Transfer {
+            from: self.host.to_account_info(),
+            to: self.game_account.to_account_info(),
+        };
+        let transfer_ctx = CpiContext::new(cpi_program.clone(), cpi_accounts);
+        transfer(transfer_ctx, self.tournament.platform_fee)?;
+
+        // Transfer the amount to the tournament vault
         let cpi_accounts = Transfer {
             from: self.host.to_account_info(),
             to: self.tournament_vault.to_account_info(),
         };
-
         let transfer_ctx = CpiContext::new(cpi_program, cpi_accounts);
         transfer(transfer_ctx, total_price)?;
 

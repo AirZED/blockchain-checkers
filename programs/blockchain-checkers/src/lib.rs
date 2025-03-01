@@ -18,14 +18,15 @@ pub mod blockchain_checkers {
     pub fn initialize_tournament(
         ctx: Context<MakeTouranament>,
         seeds: u64,
+        game_account: Pubkey,
         max_players: u8,
     ) -> Result<()> {
         let tournament = ctx.accounts;
-        tournament.make_tournament(seeds, max_players, &ctx.bumps)?;
+        tournament.make_tournament(seeds, max_players, game_account, &ctx.bumps)?;
         Ok(())
     }
 
-    pub fn fund_tournament(ctx: Context<FundTouranament>, amount: u64) -> Result<()> {
+    pub fn fund_tournament(ctx: Context<FundTouranament>, seeds: u64, amount: u64) -> Result<()> {
         let tournament = ctx.accounts;
         tournament.fund_tournament(amount)?;
 

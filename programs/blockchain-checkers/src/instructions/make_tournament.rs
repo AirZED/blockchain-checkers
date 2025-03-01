@@ -5,7 +5,7 @@ use anchor_lang::{
 
 use crate::{
     errors::TournamentError,
-    states::{Tournament, TournamentState},
+    states::{game, Tournament, TournamentState},
 };
 
 #[derive(Accounts)]
@@ -37,10 +37,11 @@ impl<'info> MakeTouranament<'info> {
         &mut self,
         seed: u64,
         max_players: u8,
+        game_account: Pubkey,
         bumps: &MakeTouranamentBumps,
     ) -> Result<()> {
         require!(
-            max_players % 2 == 0 || max_players <= 0,
+            max_players % 2 == 0 && max_players > 0,
             TournamentError::InvalidPlayerCount
         );
 
@@ -53,6 +54,7 @@ impl<'info> MakeTouranament<'info> {
             total_price: 0,
             tournament_bump: bumps.tournament,
             tournament_vault_bump: bumps.tournament_vault,
+            game_account,
             platform_fee: 0,
             winners: Vec::new(),
             current_state: TournamentState::Created,

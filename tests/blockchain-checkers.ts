@@ -76,11 +76,12 @@ describe("blockchain-checkers", () => {
   it("Should initialize a tournament", async () => {
     try {
       const t1 = await airdrop(provider.connection, host.publicKey, 4);
-      console.log("✅ Host Account funded: ", t1);
+      console.log("✅ Initialization, host Account funded: ", t1);
 
       const tx = await program.methods
         .initializeTournament(
           seed,
+          gameAccount.publicKey,
           4 // max players
         )
         .accountsPartial({
@@ -106,6 +107,9 @@ describe("blockchain-checkers", () => {
       expect(tournamentAccount.maxPlayers).to.equal(4);
       expect(tournamentAccount.totalPrice.toString()).to.equal("0");
       expect(tournamentAccount.currentState.created).to.not.be.undefined;
+      expect(tournamentAccount.gameAccount.toString()).to.equal(
+        gameAccount.publicKey.toString()
+      );
     } catch (error) {
       console.error("error", error);
       throw error;
@@ -115,13 +119,14 @@ describe("blockchain-checkers", () => {
   it("Fund the tournament", async () => {
     try {
       const t1 = await airdrop(provider.connection, host.publicKey, 10);
-      console.log("✅ Host Account funded: ", t1);
+      console.log("✅ Fund host Account funded: ", t1);
 
       const tx = await program.methods
-        .fundTournament(new BN(8))
+        .fundTournament(seed, new BN(8))
         .accountsPartial({
           host: host.publicKey,
           tournament: tournamentPDA,
+          gameAccount: gameAccount.publicKey,
           tournamentVault: tournamentVault,
           systemProgram: SystemProgram.programId,
         })
