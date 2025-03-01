@@ -45,6 +45,8 @@ impl<'info> FundTouranament<'info> {
         let total_price = amount - self.tournament.platform_fee;
         self.tournament.total_price = total_price;
 
+        // transfer to the account that collects the platform fee
+
         // Transfer the amount to the tournament vault
         let cpi_program = self.system_program.to_account_info();
 
