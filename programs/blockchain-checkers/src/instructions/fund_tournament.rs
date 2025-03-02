@@ -1,5 +1,6 @@
 use anchor_lang::{
     prelude::*,
+    solana_program,
     system_program::{transfer, Transfer},
 };
 
@@ -42,12 +43,17 @@ impl<'info> FundTouranament<'info> {
             TournamentError::TournamentAlreadyStarted
         );
 
-        // update the state
-        self.tournament.current_state = TournamentState::Funded;
-        self.tournament.platform_fee = amount * 2 / 100;
+        solana_program::log::sol_log(&format!("Amount: {}", amount));
 
-        let total_price = amount - self.tournament.platform_fee;
+        // update the state
+        let platform_fee = amount * 5 / 100;
+        let total_price = amount - platform_fee;
+
         self.tournament.total_price = total_price;
+        self.tournament.platform_fee = platform_fee;
+
+        solana_program::log::sol_log(&format!("Platform fee: {}", platform_fee));
+        solana_program::log::sol_log(&format!("Total price: {}", total_price));
 
         let cpi_program = self.system_program.to_account_info();
 
@@ -57,7 +63,7 @@ impl<'info> FundTouranament<'info> {
             to: self.game_account.to_account_info(),
         };
         let transfer_ctx = CpiContext::new(cpi_program.clone(), cpi_accounts);
-        transfer(transfer_ctx, self.tournament.platform_fee)?;
+        transfer(transfer_ctx, platform_fee)?;
 
         // Transfer the amount to the tournament vault
         let cpi_accounts = Transfer {
@@ -66,6 +72,8 @@ impl<'info> FundTouranament<'info> {
         };
         let transfer_ctx = CpiContext::new(cpi_program, cpi_accounts);
         transfer(transfer_ctx, total_price)?;
+
+        self.tournament.current_state = TournamentState::Funded;
 
         Ok(())
     }

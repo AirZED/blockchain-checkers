@@ -122,7 +122,7 @@ describe("blockchain-checkers", () => {
       console.log("✅ Fund host Account funded: ", t1);
 
       const tx = await program.methods
-        .fundTournament(seed, new BN(8))
+        .fundTournament(seed, new BN(1 * LAMPORTS_PER_SOL))
         .accountsPartial({
           host: host.publicKey,
           tournament: tournamentPDA,
@@ -145,8 +145,11 @@ describe("blockchain-checkers", () => {
       );
 
       expect(tournamentAccount.maxPlayers).to.equal(4);
-      expect(tournamentAccount.totalPrice.toString()).to.equal("8");
+      expect(tournamentAccount.totalPrice.toString()).to.equal("950000000");
       expect(tournamentAccount.currentState.funded).to.not.be.undefined;
+      expect(tournamentAccount.gameAccount.toString()).to.equal(
+        gameAccount.publicKey.toString()
+      );
     } catch (error) {
       console.error("error", error);
       throw error;
