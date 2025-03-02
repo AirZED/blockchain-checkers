@@ -155,6 +155,52 @@ describe("blockchain-checkers", () => {
       throw error;
     }
   });
+  it("Join the tournament", async () => {
+    try {
+      const p1 = await airdrop(provider.connection, player1.publicKey, 0.1);
+      const p2 = await airdrop(provider.connection, player2.publicKey, 0.1);
+      const p3 = await airdrop(provider.connection, player3.publicKey, 0.1);
+      const p4 = await airdrop(provider.connection, player4.publicKey, 0.1);
+
+      console.log("✅ Player 1 Account funded: ", p1);
+      console.log("✅ Player 2 Account funded: ", p2);
+      console.log("✅ Player 3 Account funded: ", p3);
+      console.log("✅ Player 4 Account funded: ", p4);
+
+      const players = [player1, player2, player3, player4];
+
+      const AllTx = await Promise.all(
+        players.map((player) =>
+          program.methods
+            .joinTournament(seed)
+            .accountsPartial({
+              player: player.publicKey,
+              tournament: tournamentPDA,
+              tournamentVault: tournamentVault,
+              systemProgram: SystemProgram.programId,
+            })
+            .signers([player])
+            .rpc()
+        )
+      );
+
+      console.log("Joined Tournament TX:", AllTx);
+
+      // Verify tournament state
+      const tournamentAccount = await program.account.tournament.fetch(
+        tournamentPDA
+      );
+
+      expect(tournamentAccount.host.toString()).to.equal(
+        host.publicKey.toString()
+      );
+
+      expect(tournamentAccount.players.length).to.equal(4);
+    } catch (error) {
+      console.error("error", error);
+      throw error;
+    }
+  });
 });
 
 async function airdrop(

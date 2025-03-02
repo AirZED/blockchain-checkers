@@ -52,8 +52,8 @@ impl<'info> FundTouranament<'info> {
         self.tournament.total_price = total_price;
         self.tournament.platform_fee = platform_fee;
 
-        solana_program::log::sol_log(&format!("Platform fee: {}", platform_fee));
-        solana_program::log::sol_log(&format!("Total price: {}", total_price));
+        // solana_program::log::sol_log(&format!("Platform fee: {}", platform_fee));
+        // solana_program::log::sol_log(&format!("Total price: {}", total_price));
 
         let cpi_program = self.system_program.to_account_info();
 

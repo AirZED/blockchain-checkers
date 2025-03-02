@@ -1,4 +1,4 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*, solana_program};
 
 use crate::{
     errors::TournamentError,
@@ -29,14 +29,20 @@ pub struct JoinTournament<'info> {
 
 impl<'info> JoinTournament<'info> {
     pub fn join_tournament(&mut self) -> Result<()> {
-        require!(
-            self.tournament.players.len() >= self.tournament.max_players as usize,
-            TournamentError::TournamentFull
-        );
+        solana_program::log::sol_log(&format!(
+            "Current amount of players: {}",
+            self.tournament.players.len()
+        ));
+        solana_program::log::sol_log(&format!("Max Players: {}", self.tournament.max_players));
 
         require!(
             self.tournament.current_state != TournamentState::Started,
             TournamentError::TournamentAlreadyStarted
+        );
+
+        require!(
+            self.tournament.players.len() < self.tournament.max_players as usize,
+            TournamentError::TournamentFull
         );
 
         self.tournament.players.push(self.player.key());
