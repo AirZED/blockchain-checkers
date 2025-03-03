@@ -36,6 +36,7 @@ describe("blockchain-checkers", () => {
   let tournamentBump;
   let tournamentVault;
   let tournamentVaultBump;
+  let team: { id: number; player1: PublicKey; player2: PublicKey };
 
   const seed = new BN(123);
 
@@ -228,6 +229,8 @@ describe("blockchain-checkers", () => {
         tournamentPDA
       );
 
+      team = tournamentAccount.teams[0];
+
       console.log("tournamentAccount", tournamentAccount);
 
       expect(tournamentAccount.currentState.started).to.not.be.undefined;
@@ -236,6 +239,98 @@ describe("blockchain-checkers", () => {
       );
       expect(tournamentAccount.teams.length).to.equal(3);
       expect(tournamentAccount.players.length).to.equal(6);
+    } catch (error) {
+      console.error("error", error);
+      throw error;
+    }
+  });
+
+  it("submit Game Result", async () => {
+    try {
+      let tx = await program.methods
+        .submitGameResult({
+          winner: team.player2,
+          loser: team.player1,
+          teamIndex: team.id,
+        })
+        .accountsPartial({
+          gameAccount: gameAccount.publicKey,
+          tournament: tournamentPDA,
+          tournamentVault: tournamentVault,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([gameAccount])
+        .rpc();
+
+      console.log("Ended Tournament TX:", tx);
+
+      // Verify tournament state
+      const tournamentAccount = await program.account.tournament.fetch(
+        tournamentPDA
+      );
+
+      expect(tournamentAccount.winners).to.not.be.undefined;
+      expect(tournamentAccount.winners[0].toString()).to.equal(
+        team.player2.toString()
+      );
+    } catch (error) {
+      console.error("error", error);
+      throw error;
+    }
+  });
+
+  it("End tournament", async () => {
+    try {
+      let tx = await program.methods
+        .endTournament()
+        .accountsPartial({
+          host: host.publicKey,
+          tournament: tournamentPDA,
+          tournamentVault: tournamentVault,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([host])
+        .rpc();
+
+      console.log("Ended Tournament TX:", tx);
+
+      // Verify tournament state
+      const tournamentAccount = await program.account.tournament.fetch(
+        tournamentPDA
+      );
+
+      console.log("tournamentAccount", tournamentAccount);
+
+      expect(tournamentAccount.currentState.ended).to.not.be.undefined;
+    } catch (error) {
+      console.error("error", error);
+      throw error;
+    }
+  });
+
+  it("Claim Result", async () => {
+    try {
+      let tx = await program.methods
+        .claimRewards()
+        .accountsPartial({
+          player: team.player2,
+          tournament: tournamentPDA,
+          tournamentVault: tournamentVault,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([player2])
+        .rpc();
+
+      console.log("Ended Tournament TX:", tx);
+
+      // Verify tournament state
+      const tournamentAccount = await program.account.tournament.fetch(
+        tournamentPDA
+      );
+
+      console.log("tournamentAccount", tournamentAccount);
+
+      expect(tournamentAccount.currentState.ended).to.not.be.undefined;
     } catch (error) {
       console.error("error", error);
       throw error;

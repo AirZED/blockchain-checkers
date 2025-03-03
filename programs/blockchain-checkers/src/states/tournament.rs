@@ -2,6 +2,7 @@ use anchor_lang::{prelude::*, solana_program};
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug)]
 pub struct Team {
+    pub id: u8,
     pub player1: Pubkey,
     pub player2: Pubkey,
 }
@@ -80,9 +81,10 @@ impl Tournament {
             }
 
             // Create teams from shuffled players
-            for chunk in players.chunks(2) {
+            for (idx, chunk) in players.chunks(2).enumerate() {
                 if let [player1, player2] = chunk {
                     self.teams.push(Team {
+                        id: idx as u8,
                         player1: *player1,
                         player2: *player2,
                     });
