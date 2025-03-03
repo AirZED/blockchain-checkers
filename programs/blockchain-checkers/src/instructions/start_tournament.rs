@@ -26,13 +26,17 @@ pub struct StartTournament<'info> {
 
 impl<'info> StartTournament<'info> {
     pub fn match_players(&mut self) -> Result<()> {
+        require!(
+            self.tournament.current_state == TournamentState::Funded,
+            TournamentError::TournamentNotFunded
+        );
         self.tournament.shuffle_players();
         Ok(())
     }
 
     pub fn start_tournament(&mut self) -> Result<()> {
         require!(
-            self.tournament.current_state != TournamentState::Shuffled,
+            self.tournament.current_state == TournamentState::Shuffled,
             TournamentError::TournamentNotShuffled
         );
 

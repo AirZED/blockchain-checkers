@@ -26,29 +26,24 @@ pub mod blockchain_checkers {
         Ok(())
     }
 
-    pub fn fund_tournament(ctx: Context<FundTouranament>, _seeds: u64, amount: u64) -> Result<()> {
+    pub fn fund_tournament(ctx: Context<FundTouranament>, amount: u64) -> Result<()> {
         let tournament = ctx.accounts;
         tournament.fund_tournament(amount)?;
 
         Ok(())
     }
 
-    pub fn join_tournament(ctx: Context<JoinTournament>, _seeds: u64) -> Result<()> {
+    pub fn join_tournament(ctx: Context<JoinTournament>) -> Result<()> {
         let tournament = ctx.accounts;
         tournament.join_tournament()?;
 
         Ok(())
     }
 
-    pub fn match_players(ctx: Context<StartTournament>) -> Result<()> {
-        let tournament = ctx.accounts;
-        tournament.match_players()?;
-
-        Ok(())
-    }
-
     pub fn start_tournament(ctx: Context<StartTournament>) -> Result<()> {
         let tournament = ctx.accounts;
+
+        tournament.match_players()?;
         tournament.start_tournament()?;
 
         Ok(())

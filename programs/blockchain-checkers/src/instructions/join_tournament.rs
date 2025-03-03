@@ -6,14 +6,13 @@ use crate::{
 };
 
 #[derive(Accounts)]
-#[instruction(seed: u64)]
 pub struct JoinTournament<'info> {
     #[account(mut)]
     pub player: Signer<'info>,
 
     #[account(
         mut,
-        seeds = [b"tournament", tournament.host.as_ref(), seed.to_le_bytes().as_ref()],
+        seeds = [b"tournament", tournament.host.as_ref(), tournament.seed.to_le_bytes().as_ref()],
         bump = tournament.tournament_bump,
         constraint = !tournament.is_full() @ TournamentError::TournamentFull,
         constraint = !tournament.has_player(&player.key()) @ TournamentError::AlreadyJoined,

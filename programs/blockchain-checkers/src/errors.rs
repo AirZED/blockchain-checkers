@@ -40,4 +40,7 @@ pub enum TournamentError {
 
     #[msg("Not a tournament winner")]
     NotATournamentWinner,
+
+    #[msg("This tournament has not been funded yet")]
+    TournamentNotFunded,
 }

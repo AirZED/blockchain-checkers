@@ -1,6 +1,6 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*, solana_program};
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug)]
 pub struct Team {
     pub player1: Pubkey,
     pub player2: Pubkey,
@@ -64,8 +64,10 @@ impl Tournament {
     }
 
     pub fn shuffle_players(&mut self) {
-        if self.players.len() == self.max_players as usize {
+        if self.players.len() % 2 == 0 {
             let mut players = self.players.clone();
+
+            solana_program::log::sol_log(&format!("Players: {:#?}", self.players));
 
             // Use tournament seed for deterministic shuffling
             let mut index = self.seed;
@@ -88,6 +90,8 @@ impl Tournament {
             }
 
             self.current_state = TournamentState::Shuffled;
+
+            solana_program::log::sol_log(&format!("Shuffled: {:#?}", self.teams));
         }
     }
 }
