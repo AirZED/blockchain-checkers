@@ -4,13 +4,12 @@ use anchor_lang::{
 };
 
 use crate::{
-    constants::TOURNAMENT_SEED,
+    constants::{TOURNAMENT_SEED, TOURNAMENT_VAULT_SEED},
     errors::TournamentError,
     states::{Tournament, TournamentState},
 };
 
 #[derive(Accounts)]
-#[instruction(seed: u64)]
 pub struct ClaimRewards<'info> {
     #[account(mut)]
     pub player: Signer<'info>,
@@ -19,7 +18,7 @@ pub struct ClaimRewards<'info> {
 
     #[account(
         mut,
-        seeds = [b"tournament", tournament.host.as_ref(), seed.to_le_bytes().as_ref()],
+        seeds = [TOURNAMENT_SEED, tournament.host.as_ref(), tournament.seed.to_le_bytes().as_ref()],
         bump = tournament.tournament_bump,
         close= host,
         constraint = tournament.current_state == TournamentState::Started || tournament.current_state == TournamentState::Ended @ TournamentError::TournamentNotStarted,
@@ -29,7 +28,7 @@ pub struct ClaimRewards<'info> {
     pub tournament: Account<'info, Tournament>,
 
     // For tournament vault access if needed
-    #[account(mut, seeds=[b"tournament_vault", tournament.key().as_ref()], bump)]
+    #[account(mut, seeds=[TOURNAMENT_VAULT_SEED, tournament.key().as_ref()], bump)]
     pub tournament_vault: SystemAccount<'info>,
 
     pub system_program: Program<'info, System>,
@@ -48,9 +47,9 @@ impl<'info> ClaimRewards<'info> {
         };
 
         let seeds = [
-            TOURNAMENT_SEED,
+            TOURNAMENT_VAULT_SEED,
             self.tournament.to_account_info().key.as_ref(),
-            &[self.tournament.tournament_bump],
+            &[self.tournament.tournament_vault_bump],
         ];
 
         let signer_seeds = &[&seeds[..]];

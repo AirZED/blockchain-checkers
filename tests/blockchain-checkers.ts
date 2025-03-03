@@ -37,6 +37,7 @@ describe("blockchain-checkers", () => {
   let tournamentVault;
   let tournamentVaultBump;
   let team: { id: number; player1: PublicKey; player2: PublicKey };
+  let winner;
 
   const seed = new BN(123);
 
@@ -310,27 +311,36 @@ describe("blockchain-checkers", () => {
 
   it("Claim Result", async () => {
     try {
-      let tx = await program.methods
-        .claimRewards()
-        .accountsPartial({
-          player: team.player2,
-          tournament: tournamentPDA,
-          tournamentVault: tournamentVault,
-          systemProgram: SystemProgram.programId,
-        })
-        .signers([player2])
-        .rpc();
+      let players = [player1, player2, player3, player4, player5, player6];
 
-      console.log("Ended Tournament TX:", tx);
+      players.forEach(async (player) => {
+        if (player.publicKey.toString() === team.player2.toString()) {
+          let tx = await program.methods
+            .claimRewards()
+            .accountsPartial({
+              player: team.player2,
+              host: host.publicKey,
+              tournament: tournamentPDA,
+              tournamentVault: tournamentVault,
+              systemProgram: SystemProgram.programId,
+            })
+            .signers([player])
+            .rpc();
 
-      // Verify tournament state
-      const tournamentAccount = await program.account.tournament.fetch(
-        tournamentPDA
-      );
+          console.log("Claimed Reward:", tx);
 
-      console.log("tournamentAccount", tournamentAccount);
+          // Verify tournament state
+          const tournamentAccount = await program.account.tournament.fetch(
+            tournamentPDA
+          );
 
-      expect(tournamentAccount.currentState.ended).to.not.be.undefined;
+          console.log("tournamentAccount", tournamentAccount);
+          expect(tournamentAccount.claimedRewards.length).to.equal(1);
+          expect(tournamentAccount.claimedRewards[0].toString()).to.equal(
+            player2.publicKey.toString()
+          );
+        }
+      });
     } catch (error) {
       console.error("error", error);
       throw error;
