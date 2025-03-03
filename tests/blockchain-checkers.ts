@@ -228,6 +228,8 @@ describe("blockchain-checkers", () => {
         tournamentPDA
       );
 
+      console.log("tournamentAccount", tournamentAccount);
+
       expect(tournamentAccount.currentState.started).to.not.be.undefined;
       expect(tournamentAccount.host.toString()).to.equal(
         host.publicKey.toString()
