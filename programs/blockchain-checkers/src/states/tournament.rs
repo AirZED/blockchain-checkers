@@ -100,6 +100,8 @@ impl Tournament {
 
     pub fn init_free_for_all(&mut self) {
         if self.tournament_type == TournametType::FreeForAll {
+            solana_program::log::sol_log(&format!("Players: {:#?}", self.players));
+
             self.teams.clear();
 
             for player in &self.players {
@@ -115,11 +117,11 @@ impl Tournament {
     pub fn shuffle_players(&mut self) {
         if self.players.len() % 2 == 0 && self.tournament_type == TournametType::HeadToHead {
             let mut players = self.players.clone();
+            let mut index = self.seed;
 
             solana_program::log::sol_log(&format!("Players: {:#?}", self.players));
 
             // Use tournament seed for deterministic shuffling
-            let mut index = self.seed;
 
             for i in (1..players.len()).rev() {
                 // Generate next pseudo-random index using the seed
@@ -127,6 +129,13 @@ impl Tournament {
                 let j = (index % (i as u64 + 1)) as usize;
                 players.swap(i, j);
             }
+
+            //Find the highest power of two ≤ players.len() and remove the rest
+            let power_of_two = 1 << (players.len().next_power_of_two().trailing_zeros() - 1);
+
+            players.truncate(power_of_two);
+
+            solana_program::log::sol_log(&format!("Players after trimming: {:#?}", players));
 
             self.teams.clear();
 
