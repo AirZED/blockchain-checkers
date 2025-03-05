@@ -6,15 +6,11 @@ function App() {
     <div className="app w-screen h-screen flex justify-center items-center flex-col gap-24">
       {/* <div className="player">Current Player: {currentPlayer.label}</div> */}
 
-      
-
       <Routes>
         <Route path="/" element={<GameEngine />} />
         <Route path="/create-game" element={<GameEngine />} />
         <Route path="/game" element={<GameEngine />} />
-
       </Routes>
-      <GameEngine />
     </div>
   );
 }

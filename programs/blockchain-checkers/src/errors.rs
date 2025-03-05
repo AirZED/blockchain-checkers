@@ -43,4 +43,10 @@ pub enum TournamentError {
 
     #[msg("This tournament has not been funded yet")]
     TournamentNotFunded,
+
+    #[msg("Invalid tournament type")]
+    InvalidTournamentType,
+
+    #[msg("You cant suffle a free for all tournament")]
+    FreeForAllTournamentCantBeShuffled,
 }

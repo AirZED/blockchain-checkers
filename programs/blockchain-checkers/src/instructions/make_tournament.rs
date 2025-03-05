@@ -5,7 +5,7 @@ use anchor_lang::{
 
 use crate::{
     errors::TournamentError,
-    states::{game, Tournament, TournamentState},
+    states::{game, Tournament, TournamentState, TournametType},
 };
 
 #[derive(Accounts)]
@@ -38,10 +38,16 @@ impl<'info> MakeTouranament<'info> {
         seed: u64,
         max_players: u8,
         game_account: Pubkey,
+        tournament_type: u8,
         bumps: &MakeTouranamentBumps,
     ) -> Result<()> {
         require!(
-            max_players % 2 == 0 && max_players > 0,
+            tournament_type == 1 || tournament_type == 2,
+            TournamentError::InvalidTournamentType
+        );
+
+        require!(
+            max_players > 0 && (tournament_type != 2 || max_players % 2 == 0),
             TournamentError::InvalidPlayerCount
         );
 
@@ -50,6 +56,11 @@ impl<'info> MakeTouranament<'info> {
             host: self.host.key(),
             players: Vec::new(),
             teams: Vec::new(),
+            tournament_type: match tournament_type {
+                1 => TournametType::FreeForAll,
+                2 => TournametType::HeadToHead,
+                _ => return Err(TournamentError::InvalidTournamentType.into()),
+            },
             max_players,
             total_price: 0,
             tournament_bump: bumps.tournament,

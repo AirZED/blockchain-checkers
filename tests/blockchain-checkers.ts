@@ -39,26 +39,9 @@ describe("blockchain-checkers", () => {
   let team: { id: number; player1: PublicKey; player2: PublicKey };
   let winner;
 
-  const seed = new BN(123);
+  const seed = new BN(randomBytes(1));
 
   before(async () => {
-    // Airdrop SOL to participants
-
-    // const t2 = airdrop(provider.connection, player1.publicKey, 0.2);
-    // console.log("✅ PLayer 1 Account funded: ", t2);
-
-    // const t3 = airdrop(provider.connection, player2.publicKey, 0.2);
-    // console.log("✅ PLayer 2 Account funded: ", t3);
-
-    // const t4 = airdrop(provider.connection, player3.publicKey, 0.2);
-    // console.log("✅ PLayer 3 Account funded: ", t4);
-
-    // const t5 = airdrop(provider.connection, player4.publicKey, 0.2);
-    // console.log("✅ PLayer 4 Account funded: ", t5);
-
-    // const t6 = airdrop(provider.connection, gameAccount.publicKey, 0.2);
-    // console.log("✅ Game Account funded: ", t6);
-
     // Find tournament vault
     [tournamentPDA, tournamentBump] = PublicKey.findProgramAddressSync(
       [
@@ -309,7 +292,7 @@ describe("blockchain-checkers", () => {
     }
   });
 
-  it("Claim Result", async () => {
+  it("Claim Rewards", async () => {
     try {
       let players = [player1, player2, player3, player4, player5, player6];
 
