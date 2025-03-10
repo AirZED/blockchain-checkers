@@ -98,6 +98,10 @@ impl Tournament {
         self.players.contains(player)
     }
 
+    fn count_rounds(players: &usize) -> usize {
+        players.next_power_of_two().ilog2() as usize
+    }
+
     pub fn init_free_for_all(&mut self) {
         if self.tournament_type == TournametType::FreeForAll {
             solana_program::log::sol_log(&format!("Players: {:#?}", self.players));
