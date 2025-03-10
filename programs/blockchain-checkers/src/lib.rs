@@ -20,9 +20,16 @@ pub mod blockchain_checkers {
         seeds: u64,
         game_account: Pubkey,
         max_players: u8,
+        tournament_type: u8,
     ) -> Result<()> {
         let tournament = ctx.accounts;
-        tournament.make_tournament(seeds, max_players, game_account, &ctx.bumps)?;
+        tournament.make_tournament(
+            seeds,
+            max_players,
+            game_account,
+            tournament_type,
+            &ctx.bumps,
+        )?;
         Ok(())
     }
 

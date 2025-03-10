@@ -33,11 +33,11 @@ impl<'info> SubmitGameResult<'info> {
             .get(game_result.team_index as usize)
             .ok_or(TournamentError::InvalidTournament)?;
 
-        require!(
-            (team.player1 == game_result.winner && team.player2 == game_result.loser)
-                || (team.player1 == game_result.loser && team.player2 == game_result.winner),
-            TournamentError::PlayersNotInSameTeam
-        );
+        // require!(
+        //     (team.player1 == game_result.winner && team.player2 == game_result.loser)
+        //         || (team.player1 == game_result.loser && team.player2 == game_result.winner),
+        //     TournamentError::PlayersNotInSameTeam
+        // );
 
         if !self.tournament.winners.contains(&game_result.winner) {
             self.tournament.winners.push(game_result.winner);
