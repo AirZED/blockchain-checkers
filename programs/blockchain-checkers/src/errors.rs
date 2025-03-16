@@ -49,4 +49,10 @@ pub enum GameError {
 
     #[msg("Not enough players")]
     NotEnoughPlayers,
+
+    #[msg("Too many bets")]
+    TooManyBets,
+
+    #[msg("Player already in game")]
+    PlayerAlreadyInGame,
 }

@@ -14,7 +14,7 @@ pub enum GameState {
     Ended,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug,)]
 pub struct Bet {
     pub staker: Pubkey,
     pub amount: u64,

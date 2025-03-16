@@ -22,21 +22,16 @@ describe("blockchain-checkers", () => {
     .BlockchainCheckers as Program<BlockchainCheckers>;
 
   // Common variables for tests
-  const host = anchor.web3.Keypair.generate();
   const player1 = anchor.web3.Keypair.generate();
   const player2 = anchor.web3.Keypair.generate();
-  const player3 = anchor.web3.Keypair.generate();
-  const player4 = anchor.web3.Keypair.generate();
-  const player5 = anchor.web3.Keypair.generate();
-  const player6 = anchor.web3.Keypair.generate();
 
-  const gameAccount = anchor.web3.Keypair.generate();
 
-  let tournamentPDA;
-  let tournamentBump;
-  let tournamentVault;
-  let tournamentVaultBump;
-  let team: { id: number; player1: PublicKey; player2: PublicKey };
+  const game_fee_account = anchor.web3.Keypair.generate();
+
+  let gamePDA;
+  let gameBump;
+  let gameVault;
+  let gameVaultBump;
   let winner;
 
   const seed = new BN(123);
@@ -59,61 +54,59 @@ describe("blockchain-checkers", () => {
     // const t6 = airdrop(provider.connection, gameAccount.publicKey, 0.2);
     // console.log("✅ Game Account funded: ", t6);
 
-    // Find tournament vault
-    [tournamentPDA, tournamentBump] = PublicKey.findProgramAddressSync(
+    // Find game vault
+    [gamePDA, gameBump] = PublicKey.findProgramAddressSync(
       [
-        Buffer.from("tournament"),
-        host.publicKey.toBuffer(),
+        Buffer.from("game"),
+        player1.publicKey.toBuffer(),
         seed.toArrayLike(Buffer, "le", 8),
       ],
       program.programId
     );
-    console.log("✅ Tournament Account Address: ", tournamentPDA);
+    console.log("✅ Game Account Address: ", gamePDA);
 
-    [tournamentVault, tournamentVaultBump] = PublicKey.findProgramAddressSync(
-      [Buffer.from("tournament_vault"), tournamentPDA.toBuffer()],
+    [gameVault, gameVaultBump] = PublicKey.findProgramAddressSync(
+      [Buffer.from("game_vault"), gamePDA.toBuffer()],
       program.programId
     );
 
-    console.log("✅ Tournament Vault Account Address: ", tournamentVault);
+    console.log("✅ Game Vault Account Address: ", gameVault);
   });
 
-  it("initialize tournament", async () => {
+  it("initialize game", async () => {
     try {
-      const t1 = await airdrop(provider.connection, host.publicKey, 4);
+      const t1 = await airdrop(provider.connection, player1.publicKey, 4);
       console.log("✅ Initialization, host Account funded: ", t1);
 
       const tx = await program.methods
-        .initializeTournament(
+        .initializeGame(
           seed,
-          gameAccount.publicKey,
-          8 // max players
+          game_fee_account.publicKey
         )
         .accountsPartial({
-          host: host.publicKey,
-          tournament: tournamentPDA,
-          tournamentVault: tournamentVault,
+          host: player1.publicKey,
+          game: gamePDA,
+          gameVault: gameVault,
           systemProgram: SystemProgram.programId,
         })
-        .signers([host])
+        .signers([player1])
         .rpc();
 
-      console.log("Initialize Tournament TX:", tx);
+      console.log("Initialize Game TX:", tx);
 
-      // Verify tournament state
-      const tournamentAccount = await program.account.tournament.fetch(
-        tournamentPDA
+      // Verify game state
+      const gameAccount = await program.account.game.fetch(
+        gamePDA
       );
 
-      expect(tournamentAccount.host.toString()).to.equal(
-        host.publicKey.toString()
+      expect(gameAccount.host.toString()).to.equal(
+        player1.publicKey.toString()
       );
 
-      expect(tournamentAccount.maxPlayers).to.equal(8);
-      expect(tournamentAccount.totalPrice.toString()).to.equal("0");
-      expect(tournamentAccount.currentState.created).to.not.be.undefined;
-      expect(tournamentAccount.gameAccount.toString()).to.equal(
-        gameAccount.publicKey.toString()
+      expect(gameAccount.stakePrice.toString()).to.equal("0");
+      expect(gameAccount.currentState.created).to.not.be.undefined;
+      expect(gameAccount.gameAccount.toString()).to.equal(
+        game_fee_account.publicKey.toString()
       );
     } catch (error) {
       console.error("error", error);
@@ -121,70 +114,68 @@ describe("blockchain-checkers", () => {
     }
   });
 
-  it("Fund tournament", async () => {
+  it("Fund game", async () => {
     try {
-      const t1 = await airdrop(provider.connection, host.publicKey, 10);
+      const t1 = await airdrop(provider.connection, player1.publicKey, 10);
       console.log("✅ Fund host Account funded: ", t1);
 
+
+      let price = 1 * LAMPORTS_PER_SOL;
+
       const tx = await program.methods
-        .fundTournament(new BN(1 * LAMPORTS_PER_SOL))
+        .fundGame(new BN(1 * LAMPORTS_PER_SOL))
         .accountsPartial({
-          host: host.publicKey,
-          tournament: tournamentPDA,
-          gameAccount: gameAccount.publicKey,
-          tournamentVault: tournamentVault,
+          host: player1.publicKey,
+          game: gamePDA,
+          gameAccount: game_fee_account.publicKey,
+          gameVault: gameVault,
           systemProgram: SystemProgram.programId,
         })
-        .signers([host])
+        .signers([player1])
         .rpc();
 
-      console.log("Initialize Tournament TX:", tx);
+      console.log("Initialize Game TX:", tx);
 
-      // Verify tournament state
-      const tournamentAccount = await program.account.tournament.fetch(
-        tournamentPDA
+      // Verify game state
+      const gameAccount = await program.account.game.fetch(
+        gamePDA
       );
 
-      expect(tournamentAccount.host.toString()).to.equal(
-        host.publicKey.toString()
+      expect(gameAccount.host.toString()).to.equal(
+        player1.publicKey.toString()
       );
 
-      expect(tournamentAccount.totalPrice.toString()).to.equal("950000000");
-      expect(tournamentAccount.currentState.funded).to.not.be.undefined;
-      expect(tournamentAccount.gameAccount.toString()).to.equal(
-        gameAccount.publicKey.toString()
+      const fee = price * 6 / 100;
+      let game_stake = price - fee;
+
+      expect(gameAccount.stakePrice.toString()).to.equal(game_stake.toString());
+      expect(gameAccount.platformFee.toString()).to.equal(fee.toString())
+      expect(gameAccount.currentState.funded).to.not.be.undefined;
+      expect(gameAccount.gameAccount.toString()).to.equal(
+        game_fee_account.publicKey.toString()
       );
     } catch (error) {
       console.error("error", error);
       throw error;
     }
   });
-  it("Join tournament", async () => {
+  it("Join game", async () => {
     try {
-      const p1 = await airdrop(provider.connection, player1.publicKey, 0.1);
-      const p2 = await airdrop(provider.connection, player2.publicKey, 0.1);
-      const p3 = await airdrop(provider.connection, player3.publicKey, 0.1);
-      const p4 = await airdrop(provider.connection, player4.publicKey, 0.1);
-      const p5 = await airdrop(provider.connection, player5.publicKey, 0.1);
-      const p6 = await airdrop(provider.connection, player6.publicKey, 0.1);
-
-      console.log("✅ Player 1 Account funded: ", p1);
+      const p2 = await airdrop(provider.connection, player2.publicKey, 1);
       console.log("✅ Player 2 Account funded: ", p2);
-      console.log("✅ Player 3 Account funded: ", p3);
-      console.log("✅ Player 4 Account funded: ", p4);
-      console.log("✅ Player 5 Account funded: ", p5);
-      console.log("✅ Player 6 Account funded: ", p6);
 
-      const players = [player1, player2, player3, player4, player5, player6];
+
+      const players = [player2]
 
       const AllTx = await Promise.all(
         players.map((player) =>
           program.methods
-            .joinTournament()
+            .joinGame()
             .accountsPartial({
               player: player.publicKey,
-              tournament: tournamentPDA,
-              tournamentVault: tournamentVault,
+              game: gamePDA,
+              gameVault: gameVault,
+              gameAccount: game_fee_account.publicKey,
               systemProgram: SystemProgram.programId,
             })
             .signers([player])
@@ -192,54 +183,49 @@ describe("blockchain-checkers", () => {
         )
       );
 
-      console.log("Joined Tournament TX:", AllTx);
+      console.log("Joined Game TX:", AllTx);
 
-      // Verify tournament state
-      const tournamentAccount = await program.account.tournament.fetch(
-        tournamentPDA
+      // Verify game state
+      const gameAccount = await program.account.game.fetch(
+        gamePDA
       );
 
-      expect(tournamentAccount.host.toString()).to.equal(
-        host.publicKey.toString()
+      expect(gameAccount.host.toString()).to.equal(
+        player1.publicKey.toString()
       );
 
-      expect(tournamentAccount.players.length).to.equal(6);
+      expect(gameAccount.players.length).to.equal(2);
     } catch (error) {
       console.error("error", error);
       throw error;
     }
   });
 
-  it("Start tournament", async () => {
+  it("Start game", async () => {
     try {
       let tx = await program.methods
-        .startTournament()
+        .startGame()
         .accountsPartial({
-          host: host.publicKey,
-          tournament: tournamentPDA,
-          tournamentVault: tournamentVault,
+          host: player1.publicKey,
+          game: gamePDA,
+          gameVault: gameVault,
           systemProgram: SystemProgram.programId,
         })
-        .signers([host])
+        .signers([player1])
         .rpc();
 
-      console.log("Started Tournament TX:", tx);
+      console.log("Started Game TX:", tx);
 
-      // Verify tournament state
-      const tournamentAccount = await program.account.tournament.fetch(
-        tournamentPDA
+      // Verify game state
+      const gameAccount = await program.account.game.fetch(
+        gamePDA
       );
 
-      team = tournamentAccount.teams[0];
-
-      console.log("tournamentAccount", tournamentAccount);
-
-      expect(tournamentAccount.currentState.started).to.not.be.undefined;
-      expect(tournamentAccount.host.toString()).to.equal(
-        host.publicKey.toString()
+      expect(gameAccount.currentState.started).to.not.be.undefined;
+      expect(gameAccount.host.toString()).to.equal(
+        player1.publicKey.toString()
       );
-      expect(tournamentAccount.teams.length).to.equal(3);
-      expect(tournamentAccount.players.length).to.equal(6);
+      expect(gameAccount.players.length).to.equal(2);
     } catch (error) {
       console.error("error", error);
       throw error;
@@ -250,29 +236,28 @@ describe("blockchain-checkers", () => {
     try {
       let tx = await program.methods
         .submitGameResult({
-          winner: team.player2,
-          loser: team.player1,
-          teamIndex: team.id,
+          winner: player2.publicKey,
+          loser: player1.publicKey,
         })
         .accountsPartial({
-          gameAccount: gameAccount.publicKey,
-          tournament: tournamentPDA,
-          tournamentVault: tournamentVault,
+          gameAccount: game_fee_account.publicKey,
+          game: gamePDA,
+          gameVault: gameVault,
           systemProgram: SystemProgram.programId,
         })
-        .signers([gameAccount])
+        .signers([game_fee_account])
         .rpc();
 
-      console.log("Ended Tournament TX:", tx);
+      console.log("Ended Game TX:", tx);
 
-      // Verify tournament state
-      const tournamentAccount = await program.account.tournament.fetch(
-        tournamentPDA
+      // Verify game state
+      const gameAccount = await program.account.game.fetch(
+        gamePDA
       );
 
-      expect(tournamentAccount.winners).to.not.be.undefined;
-      expect(tournamentAccount.winners[0].toString()).to.equal(
-        team.player2.toString()
+      expect(gameAccount.winner).to.not.be.undefined;
+      expect(gameAccount.winner.toString()).to.equal(
+        player2.publicKey.toString()
       );
     } catch (error) {
       console.error("error", error);
@@ -280,72 +265,72 @@ describe("blockchain-checkers", () => {
     }
   });
 
-  it("End tournament", async () => {
+  it("End game", async () => {
     try {
       let tx = await program.methods
-        .endTournament()
+        .endGame()
         .accountsPartial({
-          host: host.publicKey,
-          tournament: tournamentPDA,
-          tournamentVault: tournamentVault,
+          host: player1.publicKey,
+          game: gamePDA,
+          gameVault: gameVault,
           systemProgram: SystemProgram.programId,
         })
-        .signers([host])
+        .signers([player1])
         .rpc();
 
-      console.log("Ended Tournament TX:", tx);
+      console.log("Ended Game TX:", tx);
 
-      // Verify tournament state
-      const tournamentAccount = await program.account.tournament.fetch(
-        tournamentPDA
+      // Verify game state
+      const gameAccount = await program.account.game.fetch(
+        gamePDA
       );
 
-      console.log("tournamentAccount", tournamentAccount);
+      console.log("gameAccount", gameAccount);
 
-      expect(tournamentAccount.currentState.ended).to.not.be.undefined;
+      expect(gameAccount.currentState.ended).to.not.be.undefined;
     } catch (error) {
       console.error("error", error);
       throw error;
     }
   });
 
-  it("Claim Result", async () => {
-    try {
-      let players = [player1, player2, player3, player4, player5, player6];
+  // it("Claim Result", async () => {
+  //   try {
+  //     let players = [player1, player2,];
 
-      players.forEach(async (player) => {
-        if (player.publicKey.toString() === team.player2.toString()) {
-          let tx = await program.methods
-            .claimRewards()
-            .accountsPartial({
-              player: team.player2,
-              host: host.publicKey,
-              tournament: tournamentPDA,
-              tournamentVault: tournamentVault,
-              systemProgram: SystemProgram.programId,
-            })
-            .signers([player])
-            .rpc();
+  //     players.forEach(async (player) => {
+  //       if (player.publicKey.toString() === team.player2.toString()) {
+  //         let tx = await program.methods
+  //           .claimRewards()
+  //           .accountsPartial({
+  //             player: team.player2,
+  //             host: player1.publicKey,
+  //             game: gamePDA,
+  //             gameVault: gameVault,
+  //             systemProgram: SystemProgram.programId,
+  //           })
+  //           .signers([player])
+  //           .rpc();
 
-          console.log("Claimed Reward:", tx);
+  //         console.log("Claimed Reward:", tx);
 
-          // Verify tournament state
-          const tournamentAccount = await program.account.tournament.fetch(
-            tournamentPDA
-          );
+  //         // Verify game state
+  //         const gameAccount = await program.account.game.fetch(
+  //           gamePDA
+  //         );
 
-          console.log("tournamentAccount", tournamentAccount);
-          expect(tournamentAccount.claimedRewards.length).to.equal(1);
-          expect(tournamentAccount.claimedRewards[0].toString()).to.equal(
-            player2.publicKey.toString()
-          );
-        }
-      });
-    } catch (error) {
-      console.error("error", error);
-      throw error;
-    }
-  });
+  //         console.log("gameAccount", gameAccount);
+  //         expect(gameAccount.claimedRewards.toString()).to.equal(player2.publicKey.toString());
+  //         expect(gameAccount.claimedRewards[0].toString()).to.equal(
+  //           player2.publicKey.toString()
+  //         );
+  //       }
+  //     });
+  //   } catch (error) {
+  //     console.error("error", error);
+  //     throw error;
+  //   }
+  // });
 });
 
 async function airdrop(

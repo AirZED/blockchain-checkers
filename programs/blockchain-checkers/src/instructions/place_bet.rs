@@ -36,6 +36,8 @@ pub struct PlaceBet<'info> {
 
 impl<'info> PlaceBet<'info> {
     pub fn place_bet(&mut self, bet_amount: u64, bet_on: Pubkey) -> Result<()> {
+        require!(self.game.bets.len() < 10, GameError::TooManyBets);
+
         let platform_fee = calc_bet_platform_fee(bet_amount);
         let bet_price = bet_amount - platform_fee;
 

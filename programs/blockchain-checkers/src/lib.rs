@@ -16,14 +16,9 @@ pub mod blockchain_checkers {
 
     use super::*;
 
-    pub fn initialize_game(
-        ctx: Context<MakeGame>,
-        seeds: u64,
-        stake_price: u64,
-        game_account: Pubkey,
-    ) -> Result<()> {
+    pub fn initialize_game(ctx: Context<MakeGame>, seeds: u64, game_account: Pubkey) -> Result<()> {
         let game = ctx.accounts;
-        game.make_game(seeds, stake_price, game_account, &ctx.bumps)?;
+        game.make_game(seeds, game_account, &ctx.bumps)?;
         Ok(())
     }
 
@@ -68,6 +63,14 @@ pub mod blockchain_checkers {
         let game = ctx.accounts;
 
         game._claim_rewards()?;
+
+        Ok(())
+    }
+
+    pub fn place_bet(ctx: Context<PlaceBet>, bet_amount: u64, bet_on: Pubkey) -> Result<()> {
+        let game = ctx.accounts;
+
+        game.place_bet(bet_amount, bet_on)?;
 
         Ok(())
     }

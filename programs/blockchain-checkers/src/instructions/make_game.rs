@@ -33,7 +33,6 @@ impl<'info> MakeGame<'info> {
     pub fn make_game(
         &mut self,
         seed: u64,
-        stake_price: u64,
         game_account: Pubkey,
         bumps: &MakeGameBumps,
     ) -> Result<()> {
@@ -41,7 +40,7 @@ impl<'info> MakeGame<'info> {
             seed,
             host: self.host.key(),
             players: vec![self.host.key()],
-            stake_price,
+            stake_price: 0,
             game_bump: bumps.game,
             game_vault_bump: bumps.game_vault,
             game_account,

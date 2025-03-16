@@ -52,6 +52,11 @@ impl<'info> JoinGame<'info> {
             GameError::GameNotFunded
         );
 
+        require!(
+            !self.game.players.contains(&self.player.key()),
+            GameError::PlayerAlreadyInGame
+        );
+
         require!(self.game.players.len() < 2, GameError::GameFull);
 
         let cpi_program = self.system_program.to_account_info();
@@ -69,11 +74,15 @@ impl<'info> JoinGame<'info> {
             to: self.game_vault.to_account_info(),
         };
 
-        let transfer_ctx_platfrom_fee =
-            CpiContext::new(cpi_program.clone(), cpi_accounts_game_stake);
-        transfer(transfer_ctx_platfrom_fee, self.game.stake_price)?;
+        let transfer_ctx_game_stake = CpiContext::new(cpi_program.clone(), cpi_accounts_game_stake);
+        transfer(transfer_ctx_game_stake, self.game.stake_price)?;
 
         self.game.players.push(self.player.key());
+
+        solana_program::log::sol_log(&format!(
+            "Current amount of players: {}",
+            self.game.players.len()
+        ));
         Ok(())
     }
 }
