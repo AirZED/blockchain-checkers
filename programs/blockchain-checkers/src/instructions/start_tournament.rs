@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::{
     errors::TournamentError,
-    states::{Game, TournamentState},
+    states::{Game, GameState},
 };
 
 #[derive(Accounts)]
@@ -27,7 +27,7 @@ pub struct StartTournament<'info> {
 impl<'info> StartTournament<'info> {
     pub fn match_players(&mut self) -> Result<()> {
         require!(
-            self.tournament.current_state == TournamentState::Funded,
+            self.tournament.current_state == GameState::Funded,
             TournamentError::TournamentNotFunded
         );
         self.tournament.shuffle_players();
@@ -36,16 +36,16 @@ impl<'info> StartTournament<'info> {
 
     pub fn start_tournament(&mut self) -> Result<()> {
         require!(
-            self.tournament.current_state == TournamentState::Shuffled,
+            self.tournament.current_state == GameState::Shuffled,
             TournamentError::TournamentNotShuffled
         );
 
-        self.tournament.current_state = TournamentState::Started;
+        self.tournament.current_state = GameState::Started;
         Ok(())
     }
 
     pub fn end_tournament(&mut self) -> Result<()> {
-        self.tournament.current_state = TournamentState::Ended;
+        self.tournament.current_state = GameState::Ended;
         Ok(())
     }
 }

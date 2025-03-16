@@ -6,7 +6,7 @@ use anchor_lang::{
 use crate::{
     constants::{TOURNAMENT_SEED, TOURNAMENT_VAULT_SEED},
     errors::TournamentError,
-    states::{Game, TournamentState},
+    states::{Game, GameState},
 };
 
 #[derive(Accounts)]

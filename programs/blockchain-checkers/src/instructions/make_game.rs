@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::{
     constants::{GAME_SEED, GAME_VAULT_SEED},
-    states::{Game, TournamentState},
+    states::{Game, GameState},
 };
 
 #[derive(Accounts)]
@@ -19,13 +19,13 @@ pub struct MakeGame<'info> {
         seeds = [GAME_SEED, host.key().as_ref(), seed.to_le_bytes().as_ref()],
         bump
     )]
-    pub tournament: Account<'info, Game>,
+    pub game: Account<'info, Game>,
 
     #[account(
-        seeds = [GAME_VAULT_SEED, tournament.key().as_ref()],
+        seeds = [GAME_VAULT_SEED, game.key().as_ref()],
         bump
     )]
-    pub tournament_vault: SystemAccount<'info>,
+    pub game_vault: SystemAccount<'info>,
     pub system_program: Program<'info, System>,
 }
 
@@ -37,17 +37,17 @@ impl<'info> MakeGame<'info> {
         game_account: Pubkey,
         bumps: &MakeGameBumps,
     ) -> Result<()> {
-        self.tournament.set_inner(Game {
+        self.game.set_inner(Game {
             seed,
             host: self.host.key(),
             players: vec![self.host.key()],
             stake_price,
-            tournament_bump: bumps.tournament,
-            tournament_vault_bump: bumps.tournament_vault,
+            game_bump: bumps.game,
+            game_vault_bump: bumps.game_vault,
             game_account,
             platform_fee: 0,
             winner: None,
-            current_state: TournamentState::Created,
+            current_state: GameState::Created,
             claimed_rewards: None,
         });
 

@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::{
     errors::TournamentError,
-    states::{Game, GameResult, TournamentState},
+    states::{Game, GameResult, GameState},
 };
 
 #[derive(Accounts)]

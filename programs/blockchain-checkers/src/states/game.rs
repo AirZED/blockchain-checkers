@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, PartialEq)]
-pub enum TournamentState {
+pub enum GameState {
     Created,
     Funded,
     Started,
@@ -16,13 +16,13 @@ pub struct Game {
 
     #[max_len(2)]
     pub players: Vec<Pubkey>,
-    pub tournament_bump: u8,
-    pub tournament_vault_bump: u8,
+    pub game_bump: u8,
+    pub game_vault_bump: u8,
 
     pub game_account: Pubkey,
 
     // pub vault_bump: u8,
-    pub current_state: TournamentState,
+    pub current_state: GameState,
     pub stake_price: u8,
     pub platform_fee: u64,
     pub winner: Option<Pubkey>,

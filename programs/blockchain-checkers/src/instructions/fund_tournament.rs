@@ -6,7 +6,7 @@ use anchor_lang::{
 
 use crate::{
     errors::TournamentError,
-    states::{Game, TournamentState},
+    states::{Game, GameState},
 };
 
 #[derive(Accounts)]
@@ -38,7 +38,7 @@ pub struct FundTouranament<'info> {
 impl<'info> FundTouranament<'info> {
     pub fn fund_tournament(&mut self, amount: u64) -> Result<()> {
         require!(
-            self.tournament.current_state == TournamentState::Created,
+            self.tournament.current_state == GameState::Created,
             TournamentError::TournamentAlreadyStarted
         );
 
@@ -72,7 +72,7 @@ impl<'info> FundTouranament<'info> {
         let transfer_ctx = CpiContext::new(cpi_program, cpi_accounts);
         transfer(transfer_ctx, total_price)?;
 
-        self.tournament.current_state = TournamentState::Funded;
+        self.tournament.current_state = GameState::Funded;
 
         Ok(())
     }
