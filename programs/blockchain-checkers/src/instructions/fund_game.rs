@@ -8,6 +8,7 @@ use crate::{
     constants::{GAME_SEED, GAME_VAULT_SEED},
     errors::GameError,
     states::{Game, GameState},
+    utils::calc_game_platform_fee,
 };
 
 #[derive(Accounts)]
@@ -46,7 +47,7 @@ impl<'info> FundGame<'info> {
         solana_program::log::sol_log(&format!("Amount: {}", stake_price));
 
         // update the state
-        let platform_fee = stake_price * 5 / 100;
+        let platform_fee = calc_game_platform_fee(stake_price);
         let total_price = stake_price - platform_fee;
 
         self.game.stake_price = total_price;

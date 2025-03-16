@@ -15,7 +15,7 @@ pub enum GameState {
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug)]
-pub struct Stake {
+pub struct Bet {
     pub staker: Pubkey,
     pub amount: u64,
     pub bet_on: Pubkey,
@@ -43,7 +43,7 @@ pub struct Game {
     pub claimed_rewards: Option<Pubkey>, // Players who claimed rewards
 
     #[max_len(10)]
-    pub stakes: Vec<Stake>,
+    pub bets: Vec<Bet>,
 }
 
 impl Game {
@@ -69,4 +69,6 @@ impl Game {
     pub fn has_player(&self, player: &Pubkey) -> bool {
         self.players.contains(player)
     }
+
+  
 }

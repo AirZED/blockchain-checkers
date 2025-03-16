@@ -49,7 +49,7 @@ impl<'info> MakeGame<'info> {
             winner: None,
             current_state: GameState::Created,
             claimed_rewards: None,
-            stakes: Vec::new(),
+            bets: Vec::new(),
         });
 
         Ok(())
