@@ -11,7 +11,7 @@ pub struct MakeGame<'info> {
     #[account(mut)]
     pub host: Signer<'info>,
 
-    // I need a third parameter to make a single user able to create multiple tournaments
+    // I need a third parameter to make a single user able to create multiple games
     #[account(
         init,
         payer = host,
@@ -30,10 +30,10 @@ pub struct MakeGame<'info> {
 }
 
 impl<'info> MakeGame<'info> {
-    pub fn make_tournament(
+    pub fn make_game(
         &mut self,
         seed: u64,
-        stake_price: u8,
+        stake_price: u64,
         game_account: Pubkey,
         bumps: &MakeGameBumps,
     ) -> Result<()> {

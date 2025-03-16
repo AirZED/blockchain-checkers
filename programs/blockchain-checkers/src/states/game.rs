@@ -1,5 +1,11 @@
 use anchor_lang::prelude::*;
 
+#[derive(AnchorSerialize, AnchorDeserialize)]
+pub struct GameResult {
+    pub winner: Pubkey,
+    pub loser: Pubkey,
+}
+
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, PartialEq)]
 pub enum GameState {
     Created,
@@ -23,7 +29,7 @@ pub struct Game {
 
     // pub vault_bump: u8,
     pub current_state: GameState,
-    pub stake_price: u8,
+    pub stake_price: u64,
     pub platform_fee: u64,
     pub winner: Option<Pubkey>,
 

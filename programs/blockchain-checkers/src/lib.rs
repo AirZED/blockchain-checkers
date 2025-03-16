@@ -15,59 +15,58 @@ pub mod blockchain_checkers {
 
     use super::*;
 
-    pub fn initialize_tournament(
+    pub fn initialize_game(
         ctx: Context<MakeGame>,
         seeds: u64,
+        stake_price: u64,
         game_account: Pubkey,
-        max_players: u8,
     ) -> Result<()> {
-        let tournament = ctx.accounts;
-        tournament.make_tournament(seeds, max_players, game_account, &ctx.bumps)?;
+        let game = ctx.accounts;
+        game.make_game(seeds, stake_price, game_account, &ctx.bumps)?;
         Ok(())
     }
 
-    pub fn fund_tournament(ctx: Context<FundTouranament>, amount: u64) -> Result<()> {
-        let tournament = ctx.accounts;
-        tournament.fund_tournament(amount)?;
-
-        Ok(())
-    }
-
-    pub fn join_tournament(ctx: Context<JoinTournament>) -> Result<()> {
-        let tournament = ctx.accounts;
-        tournament.join_tournament()?;
+    pub fn fund_game(ctx: Context<FundGame>, amount: u64) -> Result<()> {
+        let game = ctx.accounts;
+        game.fund_game(amount)?;
 
         Ok(())
     }
 
-    pub fn start_tournament(ctx: Context<StartTournament>) -> Result<()> {
-        let tournament = ctx.accounts;
-
-        tournament.match_players()?;
-        tournament.start_tournament()?;
+    pub fn join_game(ctx: Context<JoinGame>) -> Result<()> {
+        let game = ctx.accounts;
+        game.join_game()?;
 
         Ok(())
     }
 
-    pub fn end_tournament(ctx: Context<StartTournament>) -> Result<()> {
-        let tournament = ctx.accounts;
-        tournament.end_tournament()
+    pub fn start_game(ctx: Context<StartGame>) -> Result<()> {
+        let game = ctx.accounts;
+
+        game.start_game()?;
+
+        Ok(())
+    }
+
+    pub fn end_game(ctx: Context<StartGame>) -> Result<()> {
+        let game = ctx.accounts;
+        game.end_game()
     }
 
     pub fn submit_game_result(
         ctx: Context<SubmitGameResult>,
         game_result: GameResult,
     ) -> Result<()> {
-        let tournament = ctx.accounts;
-        tournament.submit_game_result(game_result)?;
+        let game = ctx.accounts;
+        game.submit_game_result(game_result)?;
 
         Ok(())
     }
 
     pub fn claim_rewards(ctx: Context<ClaimRewards>) -> Result<()> {
-        let tournament = ctx.accounts;
+        let game = ctx.accounts;
 
-        tournament._claim_rewards()?;
+        game._claim_rewards()?;
 
         Ok(())
     }
