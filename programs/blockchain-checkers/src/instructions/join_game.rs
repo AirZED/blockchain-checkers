@@ -1,4 +1,8 @@
-use anchor_lang::{prelude::*, solana_program};
+use anchor_lang::{
+    prelude::*,
+    solana_program,
+    system_program::{transfer, Transfer},
+};
 
 use crate::{
     constants::{GAME_SEED, GAME_VAULT_SEED},
@@ -21,8 +25,12 @@ pub struct JoinGame<'info> {
     pub game: Account<'info, Game>,
 
     // For game vault access if needed
-    #[account(seeds=[GAME_VAULT_SEED, game.key().as_ref()], bump)]
+    #[account(mut, seeds=[GAME_VAULT_SEED, game.key().as_ref()], bump= game.game_vault_bump)]
     pub game_vault: SystemAccount<'info>,
+
+    /// CHECK: This is the account that will receive the platform fee
+    #[account(mut, address = game.game_account)]
+    pub game_account: UncheckedAccount<'info>,
 
     pub system_program: Program<'info, System>,
 }
@@ -39,7 +47,31 @@ impl<'info> JoinGame<'info> {
             GameError::GameAlreadyStarted
         );
 
+        require!(
+            self.game.current_state == GameState::Funded,
+            GameError::GameNotFunded
+        );
+
         require!(self.game.players.len() < 2, GameError::GameFull);
+
+        let cpi_program = self.system_program.to_account_info();
+
+        let cpi_accounts_platform_fee = Transfer {
+            from: self.player.to_account_info(),
+            to: self.game_account.to_account_info(),
+        };
+        let transfer_ctx_platfrom_fee =
+            CpiContext::new(cpi_program.clone(), cpi_accounts_platform_fee);
+        transfer(transfer_ctx_platfrom_fee, self.game.platform_fee)?;
+
+        let cpi_accounts_game_stake = Transfer {
+            from: self.player.to_account_info(),
+            to: self.game_vault.to_account_info(),
+        };
+
+        let transfer_ctx_platfrom_fee =
+            CpiContext::new(cpi_program.clone(), cpi_accounts_game_stake);
+        transfer(transfer_ctx_platfrom_fee, self.game.stake_price)?;
 
         self.game.players.push(self.player.key());
         Ok(())

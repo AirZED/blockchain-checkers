@@ -58,20 +58,21 @@ impl<'info> FundGame<'info> {
         let cpi_program = self.system_program.to_account_info();
 
         // transfer to the account that collects the platform fee
-        let cpi_accounts = Transfer {
+        let cpi_accounts_platform_fee = Transfer {
             from: self.host.to_account_info(),
             to: self.game_account.to_account_info(),
         };
-        let transfer_ctx = CpiContext::new(cpi_program.clone(), cpi_accounts);
-        transfer(transfer_ctx, platform_fee)?;
+        let transfer_ctx_platform_fee =
+            CpiContext::new(cpi_program.clone(), cpi_accounts_platform_fee);
+        transfer(transfer_ctx_platform_fee, platform_fee)?;
 
         // Transfer the amount to the game vault
-        let cpi_accounts = Transfer {
+        let cpi_accounts_game_stake = Transfer {
             from: self.host.to_account_info(),
             to: self.game_vault.to_account_info(),
         };
-        let transfer_ctx = CpiContext::new(cpi_program, cpi_accounts);
-        transfer(transfer_ctx, total_price)?;
+        let transfer_ctx_game_stake = CpiContext::new(cpi_program, cpi_accounts_game_stake);
+        transfer(transfer_ctx_game_stake, total_price)?;
 
         self.game.current_state = GameState::Funded;
 

@@ -43,4 +43,10 @@ pub enum GameError {
 
     #[msg("This game has not been funded yet")]
     GameNotFunded,
+
+    #[msg("Invalid game state, you cannot perform this operation now")]
+    InvalidGameState,
+
+    #[msg("Not enough players")]
+    NotEnoughPlayers,
 }

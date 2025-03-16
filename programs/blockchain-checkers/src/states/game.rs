@@ -14,6 +14,13 @@ pub enum GameState {
     Ended,
 }
 
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace, Debug)]
+pub struct Stake {
+    pub staker: Pubkey,
+    pub amount: u64,
+    pub bet_on: Pubkey,
+}
+
 #[account]
 #[derive(InitSpace)]
 pub struct Game {
@@ -34,6 +41,9 @@ pub struct Game {
     pub winner: Option<Pubkey>,
 
     pub claimed_rewards: Option<Pubkey>, // Players who claimed rewards
+
+    #[max_len(10)]
+    pub stakes: Vec<Stake>,
 }
 
 impl Game {
@@ -53,7 +63,7 @@ impl Game {
     }
 
     pub fn is_full(&self) -> bool {
-        self.players.len() == 2
+        self.players.len() >= 2
     }
 
     pub fn has_player(&self, player: &Pubkey) -> bool {
