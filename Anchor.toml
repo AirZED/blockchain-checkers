@@ -4,16 +4,16 @@
 resolution = true
 skip-lint = false
 
-[programs.devnet]
-# [programs.localnet]
+# [programs.devnet]
+[programs.localnet]
 blockchain_checkers = "J5zCTZCbJieJ1Wf88ZxACMZyEkVvYpxXQ6nCMULGmLGy"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "devnet"
-# cluster = "http://localhost:8899"
+# cluster = "devnet"
+cluster = "http://localhost:8899"
 
 wallet = "./dev-wallet.json"
 # wallet = "~/home/mfoniso/.config/solana/id.json"

@@ -2,7 +2,7 @@ use anchor_lang::{prelude::*, solana_program};
 
 use crate::{
     errors::TournamentError,
-    states::{Tournament, TournamentState},
+    states::{Game, TournamentState},
 };
 
 #[derive(Accounts)]
@@ -17,7 +17,7 @@ pub struct JoinTournament<'info> {
         constraint = !tournament.is_full() @ TournamentError::TournamentFull,
         constraint = !tournament.has_player(&player.key()) @ TournamentError::AlreadyJoined,
     )]
-    pub tournament: Account<'info, Tournament>,
+    pub tournament: Account<'info, Game>,
 
     // For tournament vault access if needed
     #[account(seeds=[b"tournament_vault", tournament.key().as_ref()], bump)]

@@ -1,5 +1,5 @@
+pub mod _game;
 pub mod game;
-pub mod tournament;
 
+pub use _game::*;
 pub use game::*;
-pub use tournament::*;

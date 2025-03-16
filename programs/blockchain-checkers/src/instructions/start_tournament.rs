@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::{
     errors::TournamentError,
-    states::{Tournament, TournamentState},
+    states::{Game, TournamentState},
 };
 
 #[derive(Accounts)]
@@ -15,7 +15,7 @@ pub struct StartTournament<'info> {
         seeds = [b"tournament", tournament.host.as_ref(), tournament.seed.to_le_bytes().as_ref()],
         bump = tournament.tournament_bump,
     )]
-    pub tournament: Account<'info, Tournament>,
+    pub tournament: Account<'info, Game>,
 
     // For tournament vault access if needed
     #[account(seeds=[b"tournament_vault", tournament.key().as_ref()], bump)]

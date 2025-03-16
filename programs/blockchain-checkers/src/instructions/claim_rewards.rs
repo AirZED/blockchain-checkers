@@ -6,7 +6,7 @@ use anchor_lang::{
 use crate::{
     constants::{TOURNAMENT_SEED, TOURNAMENT_VAULT_SEED},
     errors::TournamentError,
-    states::{Tournament, TournamentState},
+    states::{Game, TournamentState},
 };
 
 #[derive(Accounts)]
@@ -25,7 +25,7 @@ pub struct ClaimRewards<'info> {
         constraint = tournament.is_winner(&player.key()) @ TournamentError::NotATournamentWinner,
         constraint = !tournament.has_claimed(&player.key()) @ TournamentError::AlreadyClaimed,
     )]
-    pub tournament: Account<'info, Tournament>,
+    pub tournament: Account<'info, Game>,
 
     // For tournament vault access if needed
     #[account(mut, seeds=[TOURNAMENT_VAULT_SEED, tournament.key().as_ref()], bump)]

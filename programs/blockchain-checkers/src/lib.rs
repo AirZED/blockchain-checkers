@@ -16,7 +16,7 @@ pub mod blockchain_checkers {
     use super::*;
 
     pub fn initialize_tournament(
-        ctx: Context<MakeTouranament>,
+        ctx: Context<MakeGame>,
         seeds: u64,
         game_account: Pubkey,
         max_players: u8,
