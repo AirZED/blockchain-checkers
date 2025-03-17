@@ -350,6 +350,19 @@ const GameEngine = (): ReactElement => {
 
   return (
     <div className="h-full w-full">
+      <nav>
+        <p style={{ fontFamily: '"Kaushan Script", cursive' }}>SZ</p>
+
+        <ul>
+          <li>Join Game</li>
+          <li>Create Game</li>
+          <li>Claim Rewards</li>
+        </ul>
+
+
+      </nav>
+
+
       {!roomId ? (
         <div className={`gap-4 bg-purple-900 h-full bg-[url("../src/assets/bg.jpeg")] bg-black bg-blend-multiply w-full bg-cover bg-center bg-no-repeat`}>
 
@@ -375,7 +388,7 @@ const GameEngine = (): ReactElement => {
               </button>
             </div>
 
-            
+
             <p>Create your own game and invite players </p>
             <button
               onClick={createRoom}
