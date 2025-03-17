@@ -14,7 +14,6 @@ function App() {
         <Route path="/create-game" element={<CreateGame />} />
         <Route path="/game" element={<GameEngine />} />
       </Routes>
-      <GameEngine />
     </div>
   );
 }
