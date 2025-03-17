@@ -13,9 +13,10 @@ url = "https://api.apr.dev"
 
 [provider]
 # cluster = "devnet"
-cluster = "http://localhost:8899"
+# cluster = "http://localhost:8899"
+cluster = "https://api.testnet.sonic.game"
 
-wallet = "./dev-wallet.json"
+wallet = "./sonic-dev-wallet.json"
 # wallet = "~/home/mfoniso/.config/solana/id.json"
 
 [scripts]

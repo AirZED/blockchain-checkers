@@ -13,6 +13,8 @@ import {
 } from "../../utils/contants";
 import { socket } from "../../utils/socket";
 
+import Nav from "../Nav";
+
 const GameEngine = (): ReactElement => {
   const [roomInputValue, setRoomInputValue] = useState("");
 
@@ -350,28 +352,41 @@ const GameEngine = (): ReactElement => {
 
   return (
     <div className="h-full w-full">
+      <Nav />
+
+
       {!roomId ? (
         <div className={`gap-4 bg-purple-900 h-full bg-[url("../src/assets/bg.jpeg")] bg-black bg-blend-multiply w-full bg-cover bg-center bg-no-repeat`}>
-          <button
-            onClick={createRoom}
-            className="px-4 py-2 bg-blue-500 text-white rounded"
-          >
-            Create Room
-          </button>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Room ID"
-              className="px-2 border rounded"
-              value={roomInputValue}
-              onChange={(e) => setRoomInputValue(e.target.value)}
-            />
+
+          <div className="flex flex-col items-center justify-center h-full">
+            <p style={{ fontFamily: '"Kaushan Script", cursive' }} className="text-[4rem]">Sonic Zone!</p>
+
+
+            <div className="flex flex-col gap-2 bg-white w-fit p-3" >
+              <input
+                type="text"
+                placeholder="Room ID"
+                className="px-2 py-2 border text-[1.2rem] text-gray-800 text-center rounded focus:outline-none border-gray-800"
+                value={roomInputValue}
+                onChange={(e) => setRoomInputValue(e.target.value)}
+              />
+              <button
+                onClick={() => roomInputValue && joinRoom(roomInputValue)}
+                className="px-4 py-2 bg-gray-800 text-[1.2rem] text-white rounded font-semibold"
+              >
+                Enter
+              </button>
+            </div>
+
+
+            <p>Create your own game and invite players </p>
             <button
-              onClick={() => roomInputValue && joinRoom(roomInputValue)}
-              className="px-4 py-2 bg-green-500 text-white rounded"
+              onClick={createRoom}
+              className="px-4 py-2 bg-blue-500 text-white rounded"
             >
-              Join Room
+              Create Game
             </button>
+
           </div>
         </div>
       ) : (
