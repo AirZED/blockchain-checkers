@@ -13,6 +13,8 @@ import {
 } from "../../utils/contants";
 import { socket } from "../../utils/socket";
 
+import Nav from "../Nav";
+
 const GameEngine = (): ReactElement => {
   const [roomInputValue, setRoomInputValue] = useState("");
 
@@ -350,23 +352,11 @@ const GameEngine = (): ReactElement => {
 
   return (
     <div className="h-full w-full">
-      <nav>
-        <p style={{ fontFamily: '"Kaushan Script", cursive' }}>SZ</p>
-
-        <ul>
-          <li>Join Game</li>
-          <li>Create Game</li>
-          <li>Claim Rewards</li>
-        </ul>
-
-
-      </nav>
+      <Nav />
 
 
       {!roomId ? (
         <div className={`gap-4 bg-purple-900 h-full bg-[url("../src/assets/bg.jpeg")] bg-black bg-blend-multiply w-full bg-cover bg-center bg-no-repeat`}>
-
-
 
           <div className="flex flex-col items-center justify-center h-full">
             <p style={{ fontFamily: '"Kaushan Script", cursive' }} className="text-[4rem]">Sonic Zone!</p>
