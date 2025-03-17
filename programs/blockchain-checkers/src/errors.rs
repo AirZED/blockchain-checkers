@@ -1,9 +1,9 @@
 use anchor_lang::prelude::*;
 
 #[error_code]
-pub enum TournamentError {
-    #[msg("Tournament is full")]
-    TournamentFull,
+pub enum GameError {
+    #[msg("Game is full")]
+    GameFull,
 
     #[msg("Player has already joined")]
     AlreadyJoined,
@@ -14,33 +14,45 @@ pub enum TournamentError {
     #[msg("Player has already claimed rewards")]
     AlreadyClaimed,
 
-    #[msg("Only the tournament host can perform this action")]
-    NotTournamentHost,
+    #[msg("Only the game host can perform this action")]
+    NotGameHost,
 
     #[msg("Invalid player count - must be even and greater than zero")]
     InvalidPlayerCount,
 
-    #[msg("Tournament has already started")]
-    TournamentAlreadyStarted,
+    #[msg("Game has already started")]
+    GameAlreadyStarted,
 
-    #[msg("Tournament has not started yet")]
-    TournamentNotStarted,
+    #[msg("Game has not started yet")]
+    GameNotStarted,
 
-    #[msg("Player is not in the tournament")]
-    PlayerNotInTournament,
+    #[msg("Player is not in the game")]
+    PlayerNotInGame,
 
-    #[msg("Tournament not shuffled, and players are not grouped")]
-    TournamentNotShuffled,
+    #[msg("Game not shuffled, and players are not grouped")]
+    GameNotShuffled,
 
-    #[msg("Tournament does not exist")]
-    InvalidTournament,
+    #[msg("Game does not exist")]
+    InvalidGame,
 
     #[msg("Players are not in the same team")]
     PlayersNotInSameTeam,
 
-    #[msg("Not a tournament winner")]
-    NotATournamentWinner,
+    #[msg("Not a game winner")]
+    NotAGameWinner,
 
-    #[msg("This tournament has not been funded yet")]
-    TournamentNotFunded,
+    #[msg("This game has not been funded yet")]
+    GameNotFunded,
+
+    #[msg("Invalid game state, you cannot perform this operation now")]
+    InvalidGameState,
+
+    #[msg("Not enough players")]
+    NotEnoughPlayers,
+
+    #[msg("Too many bets")]
+    TooManyBets,
+
+    #[msg("Player already in game")]
+    PlayerAlreadyInGame,
 }

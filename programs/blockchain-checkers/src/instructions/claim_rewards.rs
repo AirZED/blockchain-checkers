@@ -4,9 +4,9 @@ use anchor_lang::{
 };
 
 use crate::{
-    constants::{TOURNAMENT_SEED, TOURNAMENT_VAULT_SEED},
-    errors::TournamentError,
-    states::{Tournament, TournamentState},
+    constants::{GAME_SEED, GAME_VAULT_SEED},
+    errors::GameError,
+    states::{Game, GameState},
 };
 
 #[derive(Accounts)]
@@ -18,38 +18,37 @@ pub struct ClaimRewards<'info> {
 
     #[account(
         mut,
-        seeds = [TOURNAMENT_SEED, tournament.host.as_ref(), tournament.seed.to_le_bytes().as_ref()],
-        bump = tournament.tournament_bump,
+        seeds = [GAME_SEED, game.host.as_ref(), game.seed.to_le_bytes().as_ref()],
+        bump = game.game_bump,
         close= host,
-        constraint = tournament.current_state == TournamentState::Started || tournament.current_state == TournamentState::Ended @ TournamentError::TournamentNotStarted,
-        constraint = tournament.is_winner(&player.key()) @ TournamentError::NotATournamentWinner,
-        constraint = !tournament.has_claimed(&player.key()) @ TournamentError::AlreadyClaimed,
+        constraint = game.current_state == GameState::Started || game.current_state == GameState::Ended @ GameError::GameNotStarted,
+        constraint = game.is_winner(&player.key()) @ GameError::NotAGameWinner,
+        constraint = !game.has_claimed(&player.key()) @ GameError::AlreadyClaimed,
     )]
-    pub tournament: Account<'info, Tournament>,
+    pub game: Account<'info, Game>,
 
-    // For tournament vault access if needed
-    #[account(mut, seeds=[TOURNAMENT_VAULT_SEED, tournament.key().as_ref()], bump)]
-    pub tournament_vault: SystemAccount<'info>,
+    // For game vault access if needed
+    #[account(mut, seeds=[GAME_VAULT_SEED, game.key().as_ref()], bump)]
+    pub game_vault: SystemAccount<'info>,
 
     pub system_program: Program<'info, System>,
 }
 
 impl<'info> ClaimRewards<'info> {
     pub fn _claim_rewards(&mut self) -> Result<()> {
-        let reward_amount = (self.tournament.total_price - self.tournament.platform_fee) as usize
-            / &self.tournament.teams.len();
+        let reward_amount = (self.game.stake_price * 2 - self.game.platform_fee * 2) as usize;
 
         let cpi_program = self.system_program.to_account_info();
 
         let cpi_accounts = Transfer {
-            from: self.tournament_vault.to_account_info(),
+            from: self.game_vault.to_account_info(),
             to: self.player.to_account_info(),
         };
 
         let seeds = [
-            TOURNAMENT_VAULT_SEED,
-            self.tournament.to_account_info().key.as_ref(),
-            &[self.tournament.tournament_vault_bump],
+            GAME_VAULT_SEED,
+            self.game.to_account_info().key.as_ref(),
+            &[self.game.game_vault_bump],
         ];
 
         let signer_seeds = &[&seeds[..]];

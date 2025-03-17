@@ -1,3 +1,3 @@
-pub const TOURNAMENT_SEED: &[u8] = b"tournament";
+pub const GAME_SEED: &[u8] = b"game";
 
-pub const TOURNAMENT_VAULT_SEED: &[u8] = b"tournament_vault";
+pub const GAME_VAULT_SEED: &[u8] = b"game_vault";

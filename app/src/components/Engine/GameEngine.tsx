@@ -349,9 +349,9 @@ const GameEngine = (): ReactElement => {
   };
 
   return (
-    <div>
+    <div className="h-full w-full">
       {!roomId ? (
-        <div className="flex gap-4">
+        <div className={`gap-4 bg-purple-900 h-full bg-[url("../src/assets/bg.jpeg")] bg-black bg-blend-multiply w-full bg-cover bg-center bg-no-repeat`}>
           <button
             onClick={createRoom}
             className="px-4 py-2 bg-blue-500 text-white rounded"
@@ -391,11 +391,10 @@ const GameEngine = (): ReactElement => {
                       onClick={() => handlePieceClick(rowIndex, columnIndex)}
                       key={columnIndex}
                       className={`w-16 h-16 flex items-center justify-center cursor-pointer
-                ${
-                  (rowIndex + columnIndex) % 2 === 0
-                    ? "bg-[#EDCC8F]"
-                    : "bg-[#855E44]"
-                }
+                ${(rowIndex + columnIndex) % 2 === 0
+                          ? "bg-[#EDCC8F]"
+                          : "bg-[#855E44]"
+                        }
                     `}
                     >
                       {cell && (
@@ -406,19 +405,18 @@ const GameEngine = (): ReactElement => {
                                 ? kingPieceImgDark
                                 : kingPieceImgLight
                               : cell.color === PieceColor.BLACK
-                              ? pieceImgDark
-                              : pieceImgLight
+                                ? pieceImgDark
+                                : pieceImgLight
                           }
                           alt={
                             cell.color === PieceColor.BLACK
                               ? "Black Piece"
                               : "White Piece"
                           }
-                          className={`w-12 rounded-full   ${
-                            isCellSelected(rowIndex, columnIndex)
-                              ? "animate-scaling"
-                              : ""
-                          }`}
+                          className={`w-12 rounded-full   ${isCellSelected(rowIndex, columnIndex)
+                            ? "animate-scaling"
+                            : ""
+                            }`}
                         />
                       )}
                     </div>
