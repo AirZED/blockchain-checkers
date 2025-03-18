@@ -4,13 +4,13 @@ import { Server } from 'socket.io';
 import express from 'express';
 import { createServer } from 'http';
 import { GameEngineState, GamePiece, Move, PieceColor } from './types';
-import Coordinate from './game/coordinate';
+// import Coordinate from './game/coordinate';
 
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: 'http://localhost:5173', // Your frontend URL
+    origin: ['http://localhost:5173', "https://blockchain-checkers-dhi1.vercel.app/"], // Your frontend URL
     methods: ['GET', 'POST'],
   },
 });
@@ -203,4 +203,4 @@ class GameServer {
   }
 }
 
-new GameServer().start(3000);
+new GameServer().start(8888);
