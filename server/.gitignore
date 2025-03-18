@@ -1,5 +1,5 @@
 .env
 
-./game_account.json 
 
-game_account.json 
+*wallet.json
+game-wallet.json
