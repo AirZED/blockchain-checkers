@@ -1,23 +1,30 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useSocket } from '../context/socketContext';
+
 
 const CreateGame = () => {
   const [formData, setFormData] = useState({
-    entryFee: 0,
+    gameType: "checkers",
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  const { createRoom, roomId } = useSocket();
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData(prev => ({
       ...prev,
-      [name]: value,
+      gameType: e.target.value,
     }));
   };
 
   const handleCreateGame = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement blockchain tournament creation logic here
     try {
+
+      createRoom()
+
+      
+
+      console.log(roomId)
       // Create tournament transaction will go here
     } catch (error) {
       console.error('Failed to create game:', error);
@@ -25,19 +32,28 @@ const CreateGame = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full">
-      <p style={{ fontFamily: '"Kaushan Script", cursive' }} className="text-[4rem]">Create Sonic Zone!</p>
+    <div className="flex flex-col items-center justify-center h-full ">
+      <div className='w-fit gap-[4rem]'>
+        <p style={{ fontFamily: '"Kaushan Script", cursive' }} className="text-[4rem]">Create Sonic Zone!</p>
 
+        <div className="flex flex-col gap-2 bg-white w-full p-3">
 
+          <label className="text-black font-semibold">Select Game Type:</label>
+          <select
+            className="px-3 py-2 border rounded text-black"
+            value={formData.gameType}
+            onChange={handleSelectChange}
+          >
+            <option value="checkers">Checkers</option>
+          </select>
 
-
-      <p>Create your own game and invite players </p>
-      <button
-        className="px-4 py-2 bg-blue-500 text-white rounded"
-      >
-        Create Game
-      </button>
-
+          <button
+            className="px-4 py-2 bg-gray-800 text-[1.2rem] text-white rounded font-semibold cursor-pointer"
+            onClick={handleCreateGame}
+          >
+            Create Game
+          </button>
+        </div></div>
     </div>
   );
 };
