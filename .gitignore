@@ -11,4 +11,8 @@ sandbox
 dev-wallet.json
 ./dev-wallet.json
 
+
+./solana-dev-wallet.json
+./sonic-dev-wallet.json
+*wallet.json
 test.ts
