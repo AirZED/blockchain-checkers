@@ -1,8 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { socket } from "../utils/socket";
 import { GameEngineState, PieceColor } from "../utils/contants";
-import { Program, Provider, Wallet } from "@coral-xyz/anchor";
-import { set } from "@coral-xyz/anchor/dist/cjs/utils/features";
+import { Provider, Wallet } from "@coral-xyz/anchor";
 import { makeProvider } from "../utils/provider/setup";
 export class PlayerModel {
     label: PieceColor;
@@ -33,7 +32,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     const [provider, setProvider] = useState<Provider | null>(null);
 
     const lightPlayer = new PlayerModel(PieceColor.WHITE);
-    const darkPlayer = new PlayerModel(PieceColor.BLACK);
+    // const darkPlayer = new PlayerModel(PieceColor.BLACK);
 
     const [state, setState] = useState<GameEngineState>({
         board: Array(8).fill(null).map(() => Array(8).fill(null)),

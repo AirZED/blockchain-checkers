@@ -13,7 +13,6 @@ import {
 } from "../../utils/contants";
 import { socket } from "../../utils/socket";
 
-import Nav from "../Nav";
 
 const GameEngine = (): ReactElement => {
   const [roomInputValue, setRoomInputValue] = useState("");
@@ -309,6 +308,10 @@ const GameEngine = (): ReactElement => {
     ) {
       console.log("Click rejected - not player turn or game not playing");
       return;
+    }
+
+    if (error) {
+      console.log(error)
     }
 
     const clickedCoord = new Coordinate(x, y);
